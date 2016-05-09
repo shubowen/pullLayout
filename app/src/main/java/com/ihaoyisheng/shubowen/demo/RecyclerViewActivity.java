@@ -21,7 +21,7 @@ public class RecyclerViewActivity extends BaseActivity implements PullLayout.OnP
     @Bind(R.id.recyclerView)
     RecyclerView recyclerView;
     @Bind(R.id.refreshLayout)
-    PullLayout refreshLayout;
+    PullLayout mPullLayout;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -30,7 +30,7 @@ public class RecyclerViewActivity extends BaseActivity implements PullLayout.OnP
         ButterKnife.bind(this);
 
         recyclerView.setAdapter(new InnerAdapter());
-        refreshLayout.setOnPullListener(this);
+        mPullLayout.setOnPullListener(this);
     }
 
     @Override
@@ -38,7 +38,7 @@ public class RecyclerViewActivity extends BaseActivity implements PullLayout.OnP
         postDelay(new Runnable() {
             @Override
             public void run() {
-                refreshLayout.finishPull();
+                mPullLayout.finishPull();
             }
         }, 3000);
     }
@@ -48,7 +48,7 @@ public class RecyclerViewActivity extends BaseActivity implements PullLayout.OnP
         postDelay(new Runnable() {
             @Override
             public void run() {
-                refreshLayout.finishPull();
+                mPullLayout.finishPull();
             }
         }, 3000);
     }
