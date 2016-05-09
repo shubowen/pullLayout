@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.xiaosu.pulllayout.WaterDropView xmlns:android="http://schemas.android.com/apk/res/android"
+                                     xmlns:waterdrop="http://schemas.android.com/apk/res-auto"
+                                     android:layout_width="match_parent"
+                                     android:layout_height="match_parent"
+                                     waterdrop:bottomcircle_x="20dp"
+                                     waterdrop:bottomcircle_y="20dp"
+                                     waterdrop:max_circle_radius="15dp"
+                                     waterdrop:min_circle_radius="5dp"
+                                     waterdrop:topcircle_x="20dp"
+                                     waterdrop:topcircle_y="20dp"/>

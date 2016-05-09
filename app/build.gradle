@@ -1,0 +1,32 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 23
+    buildToolsVersion "23.0.2"
+
+    defaultConfig {
+        applicationId "com.ihaoyisheng.shubowen.superswiperefreshlayout"
+        minSdkVersion 15
+        targetSdkVersion 23
+        versionCode 1
+        versionName "1.0"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+def support_library_version = "23.3.0"
+
+dependencies {
+    compile fileTree(include: ['*.jar'], dir: 'libs')
+    compile "com.android.support:appcompat-v7:${support_library_version}"
+    compile "com.android.support:support-v4:${support_library_version}"
+    compile "com.android.support:recyclerview-v7:${support_library_version}"
+    compile project(':pulllayout-library')
+    compile 'com.jakewharton:butterknife:7.0.1'
+}
