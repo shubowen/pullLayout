@@ -3,6 +3,8 @@ package com.ihaoyisheng.shubowen.demo;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
+import com.xiaosu.pulllayout.PullLayout;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,7 +13,7 @@ import java.util.List;
  * 邮箱：shubowen123@sina.cn
  * 描述：
  */
-public class BaseActivity extends AppCompatActivity {
+public abstract class BaseActivity extends AppCompatActivity implements PullLayout.OnPullCallBackListener{
 
     protected List<String> mList = new ArrayList<>();
 
@@ -26,5 +28,27 @@ public class BaseActivity extends AppCompatActivity {
     public void postDelay(Runnable action, long delayMillis){
         getWindow().getDecorView().postDelayed(action,delayMillis);
     }
+
+    @Override
+    public void onRefresh() {
+        postDelay(new Runnable() {
+            @Override
+            public void run() {
+                pullLayout().finishPull();
+            }
+        }, 3000);
+    }
+
+    @Override
+    public void onLoad() {
+        postDelay(new Runnable() {
+            @Override
+            public void run() {
+                pullLayout().finishPull();
+            }
+        }, 3000);
+    }
+
+    protected abstract PullLayout pullLayout();
 
 }

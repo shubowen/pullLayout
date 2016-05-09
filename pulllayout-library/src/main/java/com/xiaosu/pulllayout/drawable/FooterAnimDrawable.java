@@ -43,7 +43,7 @@ public class FooterAnimDrawable extends Drawable {
     public FooterAnimDrawable() {
         mArrow = new Arrow.builder()
                 .setAngle((float) Math.PI * 0.15f)
-                .setColor(Color.BLACK)
+                .setColor(Color.GRAY)
                 .build();
 
         mLoadDrawable = new LoadDrawable.Builder()

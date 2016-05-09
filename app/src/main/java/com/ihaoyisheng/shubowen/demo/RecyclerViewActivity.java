@@ -16,17 +16,17 @@ import butterknife.ButterKnife;
  * 邮箱：shubowen123@sina.cn
  * 描述：
  */
-public class RecyclerViewActivity extends BaseActivity implements PullLayout.OnPullCallBackListener {
+public class RecyclerViewActivity extends BaseActivity {
 
     @Bind(R.id.recyclerView)
     RecyclerView recyclerView;
-    @Bind(R.id.refreshLayout)
+    @Bind(R.id.pull_layout)
     PullLayout mPullLayout;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.lay_list);
+        setContentView(R.layout.lay_recycler_list);
         ButterKnife.bind(this);
 
         recyclerView.setAdapter(new InnerAdapter());
@@ -34,23 +34,8 @@ public class RecyclerViewActivity extends BaseActivity implements PullLayout.OnP
     }
 
     @Override
-    public void onRefresh() {
-        postDelay(new Runnable() {
-            @Override
-            public void run() {
-                mPullLayout.finishPull();
-            }
-        }, 3000);
-    }
-
-    @Override
-    public void onLoad() {
-        postDelay(new Runnable() {
-            @Override
-            public void run() {
-                mPullLayout.finishPull();
-            }
-        }, 3000);
+    protected PullLayout pullLayout() {
+        return mPullLayout;
     }
 
     class InnerAdapter extends RecyclerView.Adapter<TextViewHolder> {

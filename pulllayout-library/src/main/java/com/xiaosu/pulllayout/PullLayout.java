@@ -248,9 +248,13 @@ public class PullLayout
         if (android.os.Build.VERSION.SDK_INT < 14) {
             if (mTarget instanceof AbsListView) {
                 final AbsListView absListView = (AbsListView) mTarget;
-                return absListView.getChildCount() > 0
-                        && (absListView.getFirstVisiblePosition() > 0 || absListView.getChildAt(0)
-                        .getTop() < absListView.getPaddingTop());
+                int count = absListView.getAdapter().getCount();
+                int fristPos = absListView.getFirstVisiblePosition();
+                if (fristPos == 0 && absListView.getChildAt(0).getTop() >= absListView.getPaddingTop()) {
+                    return false;
+                }
+                int lastPos = absListView.getLastVisiblePosition();
+                return lastPos > 0 && count > 0 && lastPos == count - 1;
             } else {
                 return ViewCompat.canScrollVertically(mTarget, 1) || mTarget.getScrollY() < 0;
             }
