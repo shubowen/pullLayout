@@ -3,7 +3,7 @@
 
 **目前只支持RecyclerView**
 
-![image](https://github.com/shubowen/pullLayout/app/image)
+![image](https://github.com/shubowen/pullLayout/blob/master/app/image.gif)
 
 使用方法:需要配合support-v4包使用
     
