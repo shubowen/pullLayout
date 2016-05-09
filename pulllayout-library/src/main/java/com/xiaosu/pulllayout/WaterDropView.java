@@ -17,6 +17,10 @@ import android.view.View;
 import android.view.animation.LinearInterpolator;
 
 import com.xiaosu.pulllayout.PullLayout.OnPullCallBackListener;
+import com.xiaosu.pulllayout.base.IPull;
+import com.xiaosu.pulllayout.base.IRefreshHead;
+import com.xiaosu.pulllayout.drawable.LoadDrawable;
+import com.xiaosu.pulllayout.drawable.RingRefresh;
 
 public class WaterDropView extends View implements IRefreshHead {
 

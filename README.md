@@ -3,6 +3,8 @@
 
 **目前只支持RecyclerView**
 
+![image](https://github.com/shuowen/pullLayout/raw/master/app/image)
+
 使用方法:需要配合support-v4包使用
     
     <com.xiaosu.pulllayout.PullLayout

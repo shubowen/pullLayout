@@ -20,6 +20,10 @@ import android.view.animation.Animation;
 import android.view.animation.Transformation;
 import android.widget.AbsListView;
 
+import com.xiaosu.pulllayout.base.ILoadFooter;
+import com.xiaosu.pulllayout.base.IPull;
+import com.xiaosu.pulllayout.base.IRefreshHead;
+
 public class PullLayout
         extends ViewGroup implements
         NestedScrollingParent,

@@ -1,4 +1,4 @@
-package com.xiaosu.pulllayout;
+package com.xiaosu.pulllayout.drawable;
 
 import android.animation.ValueAnimator;
 import android.animation.ValueAnimator.AnimatorUpdateListener;
@@ -43,7 +43,7 @@ public class FooterAnimDrawable extends Drawable {
     public FooterAnimDrawable() {
         mArrow = new Arrow.builder()
                 .setAngle((float) Math.PI * 0.15f)
-                .setColor(Color.RED)
+                .setColor(Color.BLACK)
                 .build();
 
         mLoadDrawable = new LoadDrawable.Builder()

@@ -9,6 +9,9 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.xiaosu.pulllayout.PullLayout.OnPullCallBackListener;
+import com.xiaosu.pulllayout.base.ILoadFooter;
+import com.xiaosu.pulllayout.base.IPull;
+import com.xiaosu.pulllayout.drawable.FooterAnimDrawable;
 
 
 /**
