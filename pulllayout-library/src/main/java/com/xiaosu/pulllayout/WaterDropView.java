@@ -67,6 +67,7 @@ public class WaterDropView extends View implements IRefreshHead {
 
     private IPull pullLayout;
     private LoadDrawable mLoadDrawable;
+    private boolean mVisible = true;
 
     public WaterDropView(Context context) {
         this(context, null);
@@ -184,6 +185,8 @@ public class WaterDropView extends View implements IRefreshHead {
 
     @Override
     protected void onDraw(Canvas canvas) {
+        if (!mVisible) return;
+
         if (isRefreshing()) {
             canvas.rotate(degrees, topCircle.getX(), topCircle.getY());
             canvas.translate(mCanvasOffset, mCanvasOffset);
@@ -354,12 +357,13 @@ public class WaterDropView extends View implements IRefreshHead {
         this.mListener = mListener;
     }
 
+    @Override
     public void reset() {
         if (null != mAnimator)
             mAnimator.cancel();
         degrees = 0;
         isRunning = false;
-        setVisibility(VISIBLE);
+        mVisible = true;
     }
 
     @Override
@@ -376,7 +380,7 @@ public class WaterDropView extends View implements IRefreshHead {
     }
 
     public void stop() {
-        setVisibility(INVISIBLE);
+        mVisible = false;
         isRunning = false;
     }
 
@@ -419,7 +423,7 @@ public class WaterDropView extends View implements IRefreshHead {
         else if (isRefreshing())
             pullLayout.animToRightPosition(mMaxDiameter, true, false);
         else
-            pullLayout.animToStartPosition(false);
+            pullLayout.animToStartPosition(true);
     }
 
     @Override
