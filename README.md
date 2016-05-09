@@ -4,6 +4,7 @@
 **目前只支持RecyclerView**
 
 使用方法:需要配合support-v4包使用
+    
     <com.xiaosu.pulllayout.PullLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent">
