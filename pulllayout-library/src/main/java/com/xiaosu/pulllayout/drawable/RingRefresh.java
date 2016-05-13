@@ -5,7 +5,6 @@ import android.graphics.ColorFilter;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.RectF;
-import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
@@ -22,8 +21,6 @@ public class RingRefresh {
     private final RectF mTempBounds = new RectF();
     private final Paint mPaint = new Paint();
     private final Paint mArrowPaint = new Paint();
-
-    private final Drawable.Callback mCallback;
 
     private float mStartTrim = 0.0f;
     private float mEndTrim = 0.0f;
@@ -56,8 +53,7 @@ public class RingRefresh {
     private int mBackgroundColor;
     private int mCurrentColor;
 
-    public RingRefresh(Drawable.Callback callback) {
-        mCallback = callback;
+    public RingRefresh() {
 
         mPaint.setStrokeCap(Paint.Cap.SQUARE);
         mPaint.setAntiAlias(true);
@@ -352,7 +348,7 @@ public class RingRefresh {
     }
 
     private void invalidateSelf() {
-        mCallback.invalidateDrawable(null);
+
     }
 
 }

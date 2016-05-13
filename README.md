@@ -1,6 +1,8 @@
 # pullLayout
 一个Android下拉刷新和上拉加载的库,**仿IOS版QQ消息页面水滴下拉刷新效果**
 
+基于官方**SwipeRefreshLayout**修改,并添加上拉功能
+
 **目前只支持RecyclerView(LinearLayoutManager-VERTICAL模式)和ListView**
 
 ![image](https://github.com/shubowen/pullLayout/blob/master/app/image.gif)

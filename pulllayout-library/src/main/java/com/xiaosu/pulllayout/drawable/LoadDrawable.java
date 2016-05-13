@@ -1,12 +1,10 @@
 package com.xiaosu.pulllayout.drawable;
 
 import android.graphics.Canvas;
-import android.graphics.ColorFilter;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PointF;
 import android.graphics.Rect;
-import android.graphics.drawable.Drawable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,7 +14,7 @@ import java.util.List;
  * 邮箱：shubowen123@sina.cn
  * 描述：
  */
-public class LoadDrawable extends Drawable {
+public class LoadDrawable extends SizeDrawable {
 
     /*Stroke弧度*/
     private float mStrokeAngle;
@@ -37,6 +35,8 @@ public class LoadDrawable extends Drawable {
 
     List<Path> mPaths = new ArrayList<>();
 
+    private float mStrokeHalfWidth;
+
     private LoadDrawable() {
         mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         mPaint.setStyle(Paint.Style.FILL);
@@ -48,7 +48,7 @@ public class LoadDrawable extends Drawable {
     }
 
     private void draw(Canvas canvas, Rect bounds) {
-        canvas.translate(mStrokeHatHeight * 0.5f, (bounds.height() - mRadius * 2) / 2);
+        canvas.translate(bounds.width() * 0.5f - mRadius,  bounds.height() * 0.5f - mRadius);
         int size = mPaths.size();
         for (int i = 0; i < size; i++) {
             int currentColor = evaluate((i + 1) * 1f / size, mStartColor, mEndColor);
@@ -57,13 +57,14 @@ public class LoadDrawable extends Drawable {
         }
     }
 
-    protected void onSizeChanged(Rect bounds) {
-        //最小直径
-        int minDiameter = Math.min(bounds.width(), bounds.height());
+    @Override
+    protected void onSizeChanged(int oldWidth, int oldHeight, int newWidth, int newHeight) {
+        //最小宽
+        int minWidth = Math.min(newWidth, newHeight);
 
         //默认使用minDiameter * 0.5f * .35f作为mStrokeHeight的值
         if (-1 == mStrokeHeight) {
-            mStrokeHeight = minDiameter * 0.5f * .35f;
+            mStrokeHeight = minWidth * 0.5f * .35f;
         }
 
         //默认使用mStrokeHeight * .25f作为mStrokeHatHeight的值
@@ -72,18 +73,18 @@ public class LoadDrawable extends Drawable {
         }
 
         //半径
-        mRadius = (int) ((minDiameter - mStrokeHatHeight) * 0.5f);
+        mRadius = (int) (minWidth * 0.5f - mStrokeHatHeight);
 
         float sin = (float) Math.sin(mStrokeAngle * 0.5f);
         float cos = (float) Math.cos(mStrokeAngle * 0.5f);
 
         /*Stroke宽度一半*/
-        float strokeHalfWidth = mRadius * sin;
+        mStrokeHalfWidth = mRadius * sin;
         /*内圆的半径*/
-        int innerRadius = (int) Math.sqrt(Math.pow(mRadius * cos - mStrokeHeight, 2) + Math.pow(strokeHalfWidth, 2));
+        int innerRadius = (int) Math.sqrt(Math.pow(mRadius * cos - mStrokeHeight, 2) + Math.pow(mStrokeHalfWidth, 2));
 
         /*内外圆Stroke弧度差的一半*/
-        float strokeAngleHalfOffset = (float) Math.atan(strokeHalfWidth / (mRadius * cos - mStrokeHeight)) - mStrokeAngle * 0.5f;
+        float strokeAngleHalfOffset = (float) Math.atan(mStrokeHalfWidth / (mRadius * cos - mStrokeHeight)) - mStrokeAngle * 0.5f;
 
         /*Stroke间隙的角度*/
         float gapAngle = (2 * (float) Math.PI - mStrokeAngle * mStrokeNum) / mStrokeNum;
@@ -98,8 +99,8 @@ public class LoadDrawable extends Drawable {
 
             PointF coordinate1 = calculateCoordinate(mRadius, currentIndexAngle + mStrokeAngle);
 
-            PointF midPerpendicularCoordinate1 = midPerpendicularCoordinate(coordinate0, coordinate1, mStrokeHatHeight);
-            path.quadTo(midPerpendicularCoordinate1.x, midPerpendicularCoordinate1.y, coordinate1.x, coordinate1.y);
+            PointF mMidPerpendicularCoordinate1 = midPerpendicularCoordinate(coordinate0, coordinate1, mStrokeHatHeight);
+            path.quadTo(mMidPerpendicularCoordinate1.x, mMidPerpendicularCoordinate1.y, coordinate1.x, coordinate1.y);
 
             PointF coordinate2 = calculateCoordinate(innerRadius, currentIndexAngle + mStrokeAngle + strokeAngleHalfOffset);
             path.lineTo(coordinate2.x, coordinate2.y);
@@ -160,29 +161,6 @@ public class LoadDrawable extends Drawable {
                 ((startR + (int) (fraction * (endR - startR))) << 16) |
                 ((startG + (int) (fraction * (endG - startG))) << 8) |
                 ((startB + (int) (fraction * (endB - startB))));
-    }
-
-    @Override
-    public void setAlpha(int alpha) {
-
-    }
-
-    @Override
-    public void setColorFilter(ColorFilter colorFilter) {
-
-    }
-
-    @Override
-    public int getOpacity() {
-        return 0;
-    }
-
-    @Override
-    public void setBounds(int left, int top, int right, int bottom) {
-        if (getBounds().width() != (right - left) || getBounds().height() != (bottom - top)) {
-            onSizeChanged(new Rect(left, top, right, bottom));
-        }
-        super.setBounds(left, top, right, bottom);
     }
 
     public LoadDrawable setStrokeAngle(float strokeAngle) {

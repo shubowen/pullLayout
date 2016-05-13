@@ -9,10 +9,11 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.Rect;
 import android.graphics.RectF;
-import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.View;
 import android.view.animation.LinearInterpolator;
 
@@ -40,7 +41,9 @@ public class WaterDropView extends View implements IRefreshHead {
     //当前的角度
     private float degrees;
 
-    final float orgRatio = 0.7f;
+    /*LoadDrawable内嵌的距离与高度的比例*/
+    final float mLoadingInsetRatio = 0.08f;
+
     private ValueAnimator mAnimator;
 
     private OnPullCallBackListener mListener;
@@ -48,10 +51,10 @@ public class WaterDropView extends View implements IRefreshHead {
     private boolean isRunning;
 
     private RingRefresh mRing;
+
     private RectF mRingBound;
 
     final float insetRatio = 0.5f;
-    private float mCanvasOffset;
 
     final int[] COLORS = new int[]{
             Color.WHITE
@@ -66,8 +69,12 @@ public class WaterDropView extends View implements IRefreshHead {
     private float maxDeformationRate = 50;
 
     private IPull pullLayout;
+
     private LoadDrawable mLoadDrawable;
     private boolean mVisible = true;
+    private boolean mHasCenterX;
+
+    private int mLoadingOffset;
 
     public WaterDropView(Context context) {
         this(context, null);
@@ -106,27 +113,16 @@ public class WaterDropView extends View implements IRefreshHead {
 
         mMaxDiameter = 2 * mMaxCircleRadius;
 
-        float orgRadius = orgRatio * mMaxCircleRadius;
-        float centerX = topCircle.getX();
-        float centerY = topCircle.getY();
-        mCanvasOffset = mMaxCircleRadius - orgRadius;
-
         createRing(STROKE_WIDTH);
 
-        createLoadDrawable(orgRadius, centerX, centerY);
+        createLoadDrawable();
     }
 
-    private void createLoadDrawable(float orgRadius, float centerX, float centerY) {
+    private void createLoadDrawable() {
         mLoadDrawable = new LoadDrawable.Builder()
                 .setStrokeAngle((float) Math.PI * 0.05f)
                 .setStrokeNum(12)
                 .build();
-        mLoadDrawable.setBounds(
-                (int) (centerX - orgRadius),
-                (int) (centerY - orgRadius),
-                (int) (centerX + orgRadius),
-                (int) (centerY + orgRadius)
-        );
     }
 
     private void initPaint() {
@@ -138,20 +134,16 @@ public class WaterDropView extends View implements IRefreshHead {
 
     private void initCircle() {
         topCircle = new Circle();
-        bottomCircle = new Circle();
-
         topCircle.setRadius(mMaxCircleRadius);
-        bottomCircle.setRadius(mMaxCircleRadius);
-
-        topCircle.setX(mMaxCircleRadius);
         topCircle.setY(mMaxCircleRadius);
 
-        bottomCircle.setX(mMaxCircleRadius);
+        bottomCircle = new Circle();
+        bottomCircle.setRadius(mMaxCircleRadius);
         bottomCircle.setY(mMaxCircleRadius);
     }
 
     void createRing(double strokeWidth) {
-        mRing = new RingRefresh(mCallback);
+        mRing = new RingRefresh();
 
         mRing.setColors(COLORS);
         mRing.setAlpha(255);
@@ -177,10 +169,25 @@ public class WaterDropView extends View implements IRefreshHead {
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        int width = (int) mMaxDiameter;
         //math.ceil(x)返回大于参数x的最小整数
         int height = (int) Math.ceil(bottomCircle.getY() + bottomCircle.getRadius());
-        setMeasuredDimension(width, height);
+        setMeasuredDimension(MeasureSpec.getSize(widthMeasureSpec), height);
+    }
+
+    @Override
+    protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
+        super.onLayout(changed, left, top, right, bottom);
+        if (!mHasCenterX) {
+            //设置水滴在中间位置
+            float centerX = getWidth() * 0.5f;
+            topCircle.setX(centerX);
+            bottomCircle.setX(centerX);
+            Rect rect = new Rect(left, top, right, bottom);
+            mLoadingOffset = (int) (getHeight() * mLoadingInsetRatio);
+            rect.inset(mLoadingOffset, mLoadingOffset);
+            mLoadDrawable.setBounds(rect);
+            mHasCenterX = true;
+        }
     }
 
     @Override
@@ -189,7 +196,7 @@ public class WaterDropView extends View implements IRefreshHead {
 
         if (isRefreshing()) {
             canvas.rotate(degrees, topCircle.getX(), topCircle.getY());
-            canvas.translate(mCanvasOffset, mCanvasOffset);
+            canvas.translate(mLoadingOffset, mLoadingOffset);
             mLoadDrawable.draw(canvas);
         } else {
             makeBezierPath();
@@ -262,6 +269,8 @@ public class WaterDropView extends View implements IRefreshHead {
         valueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
             public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                if (!isRunning) return;
+
                 degrees = (float) valueAnimator.getAnimatedValue();
                 postInvalidate();
             }
@@ -291,8 +300,10 @@ public class WaterDropView extends View implements IRefreshHead {
         if (percent == 1) {//开始动画
             if (null == mAnimator)
                 mAnimator = createAnimator();
-            if (!mAnimator.isStarted())
+            if (!mAnimator.isStarted()) {
+                isRunning = true;
                 mAnimator.start();
+            }
         } else {
             updateCircle(percent);
             updateRing();
@@ -364,6 +375,8 @@ public class WaterDropView extends View implements IRefreshHead {
         degrees = 0;
         isRunning = false;
         mVisible = true;
+        invalidate();
+        Log.i(TAG, "reset执行");
     }
 
     @Override
@@ -379,27 +392,17 @@ public class WaterDropView extends View implements IRefreshHead {
             pullLayout.animToStartPosition(true);
     }
 
+    /**
+     * 暂停
+     */
     public void stop() {
         mVisible = false;
         isRunning = false;
     }
 
-    final Drawable.Callback mCallback = new Drawable.Callback() {
-        @Override
-        public void invalidateDrawable(Drawable d) {
-
-        }
-
-        @Override
-        public void scheduleDrawable(Drawable d, Runnable what, long when) {
-
-        }
-
-        @Override
-        public void unscheduleDrawable(Drawable d, Runnable what) {
-
-        }
-    };
+    public boolean isStop() {
+        return !mVisible && !isRunning;
+    }
 
     @Override
     public View getTargetView() {
@@ -418,12 +421,13 @@ public class WaterDropView extends View implements IRefreshHead {
 
     @Override
     public void onFingerUp(float scrollY) {
-        if (isRefreshing() && scrollY < mMaxDiameter && scrollY >= 0)
+        if (isRefreshing() && scrollY < mMaxDiameter && scrollY >= 0) {
             pullLayout.animToStartPosition(false);
-        else if (isRefreshing())
+        } else if (isRefreshing()) {
             pullLayout.animToRightPosition(mMaxDiameter, true, false);
-        else
-            pullLayout.animToStartPosition(true);
+        } else {
+            pullLayout.animToStartPosition(isStop());
+        }
     }
 
     @Override

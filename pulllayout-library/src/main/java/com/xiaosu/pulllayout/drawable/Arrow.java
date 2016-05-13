@@ -2,12 +2,10 @@ package com.xiaosu.pulllayout.drawable;
 
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.ColorFilter;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PointF;
 import android.graphics.Rect;
-import android.graphics.drawable.Drawable;
 
 import static java.lang.Math.cos;
 import static java.lang.Math.sin;
@@ -18,7 +16,7 @@ import static java.lang.Math.tan;
  * 邮箱：shubowen123@sina.cn
  * 描述：用等腰三角形构建箭头
  */
-public class Arrow extends Drawable {
+public class Arrow extends SizeDrawable {
 
     //斜边的长
     float mHypotenuseHeight;
@@ -51,32 +49,10 @@ public class Arrow extends Drawable {
     }
 
     @Override
-    public void setAlpha(int alpha) {
-
-    }
-
-    @Override
-    public void setColorFilter(ColorFilter colorFilter) {
-
-    }
-
-    @Override
-    public int getOpacity() {
-        return 0;
-    }
-
-    @Override
-    public void setBounds(int left, int top, int right, int bottom) {
-        if (getBounds().width() != (right - left) || getBounds().height() != (bottom - top)) {
-            onSizeChanged(new Rect(left, top, right, bottom));
-        }
-        super.setBounds(left, top, right, bottom);
-    }
-
-    protected void onSizeChanged(Rect bounds) {
+    protected void onBoundsChange(Rect bounds) {
         mPath.reset();
 
-        float centerX = bounds.exactCenterX();
+        float centerX = bounds.centerX();
 
         float sin = (float) sin(mAngle);
         float cos = (float) cos(mAngle);

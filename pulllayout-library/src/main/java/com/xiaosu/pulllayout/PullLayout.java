@@ -478,7 +478,7 @@ public class PullLayout
     private void updateLayout(float overScroll) {
         if (mScrollY != overScroll) {
             mScrollY = overScroll;
-            if (mScrollY > 0) {
+            if (mScrollY >= 0) {
                 mRefreshHead.onPull(mScrollY, !mLoadFooter.isLoading());
             } else if (mScrollY < 0) {
                 mLoadFooter.onPull(mScrollY, !mRefreshHead.isRefreshing());
@@ -503,7 +503,7 @@ public class PullLayout
      */
     @Override
     public void animToStartPosition(final boolean reset) {
-        if (mScrollY == 0)
+        if (mScrollY == 0 && !mRefreshHead.isRefreshing() && !mLoadFooter.isLoading())
             return;
         Animation animation = new Animation() {
             @Override
