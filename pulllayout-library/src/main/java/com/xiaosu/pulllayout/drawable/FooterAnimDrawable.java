@@ -3,7 +3,6 @@ package com.xiaosu.pulllayout.drawable;
 import android.animation.ValueAnimator;
 import android.animation.ValueAnimator.AnimatorUpdateListener;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.ColorFilter;
 import android.graphics.drawable.Drawable;
 import android.view.animation.AccelerateInterpolator;
@@ -43,7 +42,6 @@ public class FooterAnimDrawable extends Drawable {
     public FooterAnimDrawable() {
         mArrow = new Arrow.builder()
                 .setAngle((float) Math.PI * 0.15f)
-                .setColor(Color.GRAY)
                 .build();
 
         mLoadDrawable = new LoadDrawable.Builder()
@@ -129,5 +127,17 @@ public class FooterAnimDrawable extends Drawable {
     @Override
     public int getOpacity() {
         return 0;
+    }
+
+    public void setIndicatorArrowColorColor(int themeColor) {
+        mArrow.color(themeColor);
+    }
+
+    public void setLoadStartColor(int loadStartColor) {
+        mLoadDrawable.setStartColor(loadStartColor);
+    }
+
+    public void setLoadEndColor(int loadEndColor) {
+        mLoadDrawable.setEndColor(loadEndColor);
     }
 }

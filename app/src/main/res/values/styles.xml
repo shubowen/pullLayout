@@ -8,4 +8,13 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
+    <style name="pull_style">
+        <item name="waterDropColor">@color/colorAccent</item>
+        <item name="indicatorArrowColor">@color/colorAccent</item>
+        <item name="loadStartColor">#FFFFFFFF</item>
+        <item name="loadEndColor">@color/colorAccent</item>
+        <item name="android:textColor">@color/colorAccent</item>
+        <item name="refreshArrowColor">@android:color/holo_red_light</item>
+    </style>
+
 </resources>

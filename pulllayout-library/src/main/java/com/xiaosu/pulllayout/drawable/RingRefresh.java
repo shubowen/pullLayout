@@ -5,7 +5,6 @@ import android.graphics.ColorFilter;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.RectF;
-import android.support.annotation.NonNull;
 import android.util.Log;
 
 /**
@@ -31,11 +30,6 @@ public class RingRefresh {
     /*弧的外半径到parent的边距*/
     private float mStrokeInset = 2.5f;
 
-    private int[] mColors;
-    // mColorIndex represents the offset into the available mColors that the
-    // progress circle should currently display. As the progress circle is
-    // animating, the mColorIndex moves by one to the next available color.
-    private int mColorIndex;
     private float mStartingStartTrim;
     private float mStartingEndTrim;
     private float mStartingRotation;
@@ -47,11 +41,7 @@ public class RingRefresh {
     private int mArrowHeight;
     private int mAlpha;
 
-    private final Paint mCirclePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-//    private final Paint mCirclePaint2 = new Paint(Paint.ANTI_ALIAS_FLAG);
-
-    private int mBackgroundColor;
-    private int mCurrentColor;
+    private int mColor;
 
     public RingRefresh() {
 
@@ -61,10 +51,6 @@ public class RingRefresh {
 
         mArrowPaint.setStyle(Paint.Style.FILL);
         mArrowPaint.setAntiAlias(true);
-    }
-
-    public void setBackgroundColor(int color) {
-        mBackgroundColor = color;
     }
 
     /**
@@ -84,20 +70,12 @@ public class RingRefresh {
     public void draw(Canvas c, RectF bounds) {
         final RectF arcBounds = mTempBounds;
         arcBounds.set(bounds);
-//        arcBounds.inset(mStrokeInset, mStrokeInset);
 
         final float startAngle = (mStartTrim + mRotation) * 360;
         final float endAngle = (mEndTrim + mRotation) * 360;
         float sweepAngle = endAngle - startAngle;
 
-        mPaint.setColor(mCurrentColor);
-
-        //先画背景
-        if (mAlpha < 255) {
-            mCirclePaint.setColor(mBackgroundColor);
-            mCirclePaint.setAlpha(255 - mAlpha);
-            c.drawRect(bounds, mCirclePaint);
-        }
+        mPaint.setColor(mColor);
 
         /*这个方法画的弧不是在RectF的内部,比RectF大*/
         c.drawArc(arcBounds, startAngle, sweepAngle, false, mPaint);
@@ -133,62 +111,12 @@ public class RingRefresh {
             mArrow.offset(x - inset, y);
             mArrow.close();
             // draw a triangle
-            mArrowPaint.setColor(mCurrentColor);
+            mArrowPaint.setColor(mColor);
 
             /*仅仅是转动画布,以前画在画布上面的内容是不随着画布的转动而转动的*/
             c.rotate(startAngle + sweepAngle - ARROW_OFFSET_ANGLE, bounds.centerX(), bounds.centerY());
             c.drawPath(mArrow, mArrowPaint);
         }
-    }
-
-    /**
-     * Set the colors the progress spinner alternates between.
-     *
-     * @param colors Array of integers describing the colors. Must be non-<code>null</code>.
-     */
-    public void setColors(@NonNull int[] colors) {
-        mColors = colors;
-        // if colors are reset, make sure to reset the color index as well
-        setColorIndex(0);
-    }
-
-    /**
-     * Set the absolute color of the progress spinner. This is should only
-     * be used when animating between current and next color when the
-     * spinner is rotating.
-     *
-     * @param color int describing the color.
-     */
-    public void setColor(int color) {
-        mCurrentColor = color;
-    }
-
-    /**
-     * @param index Index into the color array of the color to display in
-     *              the progress spinner.
-     */
-    public void setColorIndex(int index) {
-        mColorIndex = index;
-        mCurrentColor = mColors[mColorIndex];
-    }
-
-    /**
-     * @return int describing the next color the progress spinner should use when drawing.
-     */
-    public int getNextColor() {
-        return mColors[getNextColorIndex()];
-    }
-
-    private int getNextColorIndex() {
-        return (mColorIndex + 1) % (mColors.length);
-    }
-
-    /**
-     * Proceed to the next available ring color. This will automatically
-     * wrap back to the beginning of colors.
-     */
-    public void goToNextColor() {
-        setColorIndex(getNextColorIndex());
     }
 
     public void setColorFilter(ColorFilter filter) {
@@ -241,10 +169,6 @@ public class RingRefresh {
 
     public float getStartingEndTrim() {
         return mStartingEndTrim;
-    }
-
-    public int getStartingColor() {
-        return mColors[mColorIndex];
     }
 
     @SuppressWarnings("unused")
@@ -351,4 +275,7 @@ public class RingRefresh {
 
     }
 
+    public void setColor(int color) {
+        mColor = color;
+    }
 }

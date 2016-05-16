@@ -8,7 +8,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.xiaosu.pulllayout.PullLayout.OnPullCallBackListener;
+import com.xiaosu.pulllayout.base.AnimationCallback;
 import com.xiaosu.pulllayout.base.ILoadFooter;
 import com.xiaosu.pulllayout.base.IPull;
 import com.xiaosu.pulllayout.drawable.FooterAnimDrawable;
@@ -22,9 +22,10 @@ import com.xiaosu.pulllayout.drawable.FooterAnimDrawable;
 public class FooterView extends LinearLayout implements ILoadFooter {
 
     private static final String TAG = "Mr.su";
+
     private final ImageView ivArrow;
 
-    private final TextView tvTip;
+    private final TextView mTextViewTip;
 
     private final FooterAnimDrawable mAnimDrawable;
 
@@ -40,7 +41,12 @@ public class FooterView extends LinearLayout implements ILoadFooter {
 
     private IPull pullLayout;
 
-    private OnPullCallBackListener mListener;
+    AnimationCallback mAnimationCallback = new AnimationCallback() {
+        @Override
+        public void onAnimationEnd() {
+            reset();
+        }
+    };
 
     public FooterView(Context context) {
         super(context);
@@ -53,7 +59,7 @@ public class FooterView extends LinearLayout implements ILoadFooter {
         ivArrow = (ImageView) findViewById(R.id.iv_arrow);
         mAnimDrawable = new FooterAnimDrawable();
         ivArrow.setImageDrawable(mAnimDrawable);
-        tvTip = (TextView) findViewById(R.id.tv_tip);
+        mTextViewTip = (TextView) findViewById(R.id.tv_tip);
 
         reset();
     }
@@ -65,11 +71,11 @@ public class FooterView extends LinearLayout implements ILoadFooter {
         if (rate >= maxRate && !mPreLoading) {
             mAnimDrawable.arrowDown();
             mPreLoading = true;
-            tvTip.setText(R.string.release_to_loading);
+            mTextViewTip.setText(R.string.release_to_loading);
         } else if (rate < maxRate && mPreLoading) {
             mAnimDrawable.arrowUp();
             mPreLoading = false;
-            tvTip.setText(R.string.up_to_loading);
+            mTextViewTip.setText(R.string.up_to_loading);
         }
     }
 
@@ -81,16 +87,9 @@ public class FooterView extends LinearLayout implements ILoadFooter {
     public void loading() {
         isLoading = true;
         mAnimDrawable.rotating();
-        tvTip.setText(R.string.loading);
-        if (null != mListener)
-            mListener.onLoad();
-    }
+        mTextViewTip.setText(R.string.loading);
 
-    public void reset() {
-        clearAnimation();
-        isLoading = false;
-        mAnimDrawable.showArrow();
-        tvTip.setText("上拉加载");
+        pullLayout.pullUpCallback();
     }
 
     @Override
@@ -100,12 +99,17 @@ public class FooterView extends LinearLayout implements ILoadFooter {
 
     @Override
     public void finishPull(boolean isBeingDragged) {
-        pullLayout.animToStartPosition(true);
+        pullLayout.animToStartPosition(mAnimationCallback);
     }
 
-    @Override
-    public void setOnPullListener(OnPullCallBackListener mListener) {
-        this.mListener = mListener;
+    /**
+     * 重置状态
+     */
+    private void reset() {
+        clearAnimation();
+        isLoading = false;
+        mAnimDrawable.showArrow();
+        mTextViewTip.setText("上拉加载");
     }
 
     @Override
@@ -130,13 +134,29 @@ public class FooterView extends LinearLayout implements ILoadFooter {
     public void onFingerUp(float scrollY) {
         if (mPreLoading) {
             loading();
-            pullLayout.animToRightPosition(-criticalDistance, false, false);
+            pullLayout.animToRightPosition(-criticalDistance, null);
         } else
-            pullLayout.animToStartPosition(true);
+            pullLayout.animToStartPosition(mAnimationCallback);
     }
 
     @Override
     public void detach() {
 
+    }
+
+    public void setTextColor(int textColor) {
+        mTextViewTip.setTextColor(textColor);
+    }
+
+    public void setIndicatorArrowColorColor(int themeColor) {
+        mAnimDrawable.setIndicatorArrowColorColor(themeColor);
+    }
+
+    public void setLoadStartColor(int loadStartColor) {
+        mAnimDrawable.setLoadStartColor(loadStartColor);
+    }
+
+    public void setLoadEndColor(int loadEndColor) {
+        mAnimDrawable.setLoadEndColor(loadEndColor);
     }
 }

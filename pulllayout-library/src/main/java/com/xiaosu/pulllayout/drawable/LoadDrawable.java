@@ -6,8 +6,9 @@ import android.graphics.Path;
 import android.graphics.PointF;
 import android.graphics.Rect;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * 作者：疏博文 创建于 2016-05-08 16:04
@@ -33,9 +34,9 @@ public class LoadDrawable extends SizeDrawable {
 
     private int mEndColor;
 
-    List<Path> mPaths = new ArrayList<>();
+//    List<Path> mPaths = new ArrayList<>();
 
-    private float mStrokeHalfWidth;
+    Map<Float, Path> mPathMap = new HashMap<>();
 
     private LoadDrawable() {
         mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -48,12 +49,12 @@ public class LoadDrawable extends SizeDrawable {
     }
 
     private void draw(Canvas canvas, Rect bounds) {
-        canvas.translate(bounds.width() * 0.5f - mRadius,  bounds.height() * 0.5f - mRadius);
-        int size = mPaths.size();
-        for (int i = 0; i < size; i++) {
-            int currentColor = evaluate((i + 1) * 1f / size, mStartColor, mEndColor);
-            mPaint.setColor(currentColor);
-            canvas.drawPath(mPaths.get(i), mPaint);
+        canvas.translate(bounds.width() * 0.5f - mRadius, bounds.height() * 0.5f - mRadius);
+        Set<Map.Entry<Float, Path>> entrySet = mPathMap.entrySet();
+
+        for (Map.Entry<Float, Path> entry : entrySet) {
+            mPaint.setColor(evaluate(entry.getKey(), mStartColor, mEndColor));
+            canvas.drawPath(entry.getValue(), mPaint);
         }
     }
 
@@ -79,12 +80,12 @@ public class LoadDrawable extends SizeDrawable {
         float cos = (float) Math.cos(mStrokeAngle * 0.5f);
 
         /*Stroke宽度一半*/
-        mStrokeHalfWidth = mRadius * sin;
+        float strokeHalfWidth = mRadius * sin;
         /*内圆的半径*/
-        int innerRadius = (int) Math.sqrt(Math.pow(mRadius * cos - mStrokeHeight, 2) + Math.pow(mStrokeHalfWidth, 2));
+        int innerRadius = (int) Math.sqrt(Math.pow(mRadius * cos - mStrokeHeight, 2) + Math.pow(strokeHalfWidth, 2));
 
         /*内外圆Stroke弧度差的一半*/
-        float strokeAngleHalfOffset = (float) Math.atan(mStrokeHalfWidth / (mRadius * cos - mStrokeHeight)) - mStrokeAngle * 0.5f;
+        float strokeAngleHalfOffset = (float) Math.atan(strokeHalfWidth / (mRadius * cos - mStrokeHeight)) - mStrokeAngle * 0.5f;
 
         /*Stroke间隙的角度*/
         float gapAngle = (2 * (float) Math.PI - mStrokeAngle * mStrokeNum) / mStrokeNum;
@@ -110,7 +111,7 @@ public class LoadDrawable extends SizeDrawable {
             path.quadTo(midPerpendicularCoordinate2.x, midPerpendicularCoordinate2.y, coordinate3.x, coordinate3.y);
 
             path.close();
-            mPaths.add(path);
+            mPathMap.put(currentIndexAngle / (2 * (float) Math.PI), path);
         }
     }
 

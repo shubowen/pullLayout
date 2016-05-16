@@ -2,8 +2,6 @@ package com.xiaosu.pulllayout.base;
 
 import android.view.View;
 
-import com.xiaosu.pulllayout.PullLayout.OnPullCallBackListener;
-
 /**
  * 作者：疏博文 创建于 2016-04-28 17:55
  * 邮箱：shubowen123@sina.cn
@@ -38,11 +36,6 @@ public interface IView {
 
 
     /**
-     * 重置状态
-     */
-    void reset();
-
-    /**
      * 关联IPull
      *
      * @param iPull
@@ -56,8 +49,4 @@ public interface IView {
      */
     void finishPull(boolean isBeingDragged);
 
-    /**
-     * @param mListener 拖动的回调.这个必须在子类实现,因为pullLayout并不知道什么时候执行操作
-     */
-    void setOnPullListener(OnPullCallBackListener mListener);
 }

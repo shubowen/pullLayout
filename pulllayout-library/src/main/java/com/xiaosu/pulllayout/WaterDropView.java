@@ -13,11 +13,10 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.View;
 import android.view.animation.LinearInterpolator;
 
-import com.xiaosu.pulllayout.PullLayout.OnPullCallBackListener;
+import com.xiaosu.pulllayout.base.AnimationCallback;
 import com.xiaosu.pulllayout.base.IPull;
 import com.xiaosu.pulllayout.base.IRefreshHead;
 import com.xiaosu.pulllayout.drawable.LoadDrawable;
@@ -42,11 +41,9 @@ public class WaterDropView extends View implements IRefreshHead {
     private float degrees;
 
     /*LoadDrawable内嵌的距离与高度的比例*/
-    final float mLoadingInsetRatio = 0.08f;
+    final float mLoadingInsetRatio = 0.1f;
 
     private ValueAnimator mAnimator;
-
-    private OnPullCallBackListener mListener;
 
     private boolean isRunning;
 
@@ -56,25 +53,50 @@ public class WaterDropView extends View implements IRefreshHead {
 
     final float insetRatio = 0.5f;
 
-    final int[] COLORS = new int[]{
-            Color.WHITE
-    };
-
     private int mWaterColor = Color.GRAY;
 
     /*定圆的最大直径*/
     private float mMaxDiameter;
 
     //水珠滴落的手势最大距离(dp)
-    private float maxDeformationRate = 50;
+    private float mMaxDeformationRate = 50;
 
     private IPull pullLayout;
 
     private LoadDrawable mLoadDrawable;
+
     private boolean mVisible = true;
+
     private boolean mHasCenterX;
 
     private int mLoadingOffset;
+
+    //true表示需要重置
+    private boolean mNeedReset;
+
+    private boolean mNotify;
+
+    AnimationCallback mAnimToStartPositionCallback = new AnimationCallback() {
+        @Override
+        public void onAnimationEnd() {
+            resetCircleRadius();
+            if (mNeedReset) {
+                reset();
+                mNeedReset = false;
+            }
+        }
+    };
+
+    AnimationCallback mAnimToRightPositionCallback = new AnimationCallback() {
+        @Override
+        public void onAnimationEnd() {
+
+            if (mNotify) {
+                refreshImmediately();
+                mNotify = false;
+            }
+        }
+    };
 
     public WaterDropView(Context context) {
         this(context, null);
@@ -109,7 +131,7 @@ public class WaterDropView extends View implements IRefreshHead {
         initPaint();
         initCircle();
         //转换成像素
-        maxDeformationRate *= getResources().getDisplayMetrics().density;
+        mMaxDeformationRate *= getResources().getDisplayMetrics().density;
 
         mMaxDiameter = 2 * mMaxCircleRadius;
 
@@ -134,18 +156,14 @@ public class WaterDropView extends View implements IRefreshHead {
 
     private void initCircle() {
         topCircle = new Circle();
-        topCircle.setRadius(mMaxCircleRadius);
-        topCircle.setY(mMaxCircleRadius);
-
         bottomCircle = new Circle();
-        bottomCircle.setRadius(mMaxCircleRadius);
-        bottomCircle.setY(mMaxCircleRadius);
+
+        resetCircleRadius();
     }
 
     void createRing(double strokeWidth) {
         mRing = new RingRefresh();
 
-        mRing.setColors(COLORS);
         mRing.setAlpha(255);
         mRing.setShowArrow(true);
         mRing.setStartTrim(0f);
@@ -156,15 +174,9 @@ public class WaterDropView extends View implements IRefreshHead {
 
         float iStrokeWidth = (float) (strokeWidth * screenDensity);
         mRing.setStrokeWidth(iStrokeWidth);
-        mRing.setColorIndex(0);
         mRing.setArrowDimensions(iStrokeWidth * 3f, iStrokeWidth * 2f);
-        float ringRadius = insetRatio * topCircle.getRadius();
-        mRingBound = new RectF(
-                topCircle.getX() - ringRadius,
-                topCircle.getY() - ringRadius,
-                topCircle.getX() + ringRadius,
-                topCircle.getY() + ringRadius);
-        mRing.setCenterRadius(mRingBound.width() * .5f);
+
+        mRingBound = new RectF();
     }
 
     @Override
@@ -186,6 +198,8 @@ public class WaterDropView extends View implements IRefreshHead {
             mLoadingOffset = (int) (getHeight() * mLoadingInsetRatio);
             rect.inset(mLoadingOffset, mLoadingOffset);
             mLoadDrawable.setBounds(rect);
+
+            updateRing();
             mHasCenterX = true;
         }
     }
@@ -279,8 +293,7 @@ public class WaterDropView extends View implements IRefreshHead {
             @Override
             public void onAnimationStart(Animator animation) {
                 //动画开始的时候,表示开始执行刷新的操作
-                if (null != mListener)
-                    mListener.onRefresh();
+                pullLayout.pullDownCallback();
                 isRunning = true;
             }
 
@@ -317,7 +330,7 @@ public class WaterDropView extends View implements IRefreshHead {
         float bottomRadius = (mMinCircleRadius - mMaxCircleRadius) * percent + mMaxCircleRadius;
 
         //底圆的偏移量
-        float bottomCircleOffset = 3 * percent * mMaxCircleRadius;
+        float bottomCircleOffset = 3 * mMaxCircleRadius * percent;
 
         topCircle.setRadius(topRadius);
         bottomCircle.setRadius(bottomRadius);
@@ -344,7 +357,19 @@ public class WaterDropView extends View implements IRefreshHead {
 
     @Override
     public void autoRefresh() {
-        pullLayout.animToRightPosition(mMaxDiameter, true, true);
+        pullLayout.animToRightPosition(mMaxDiameter, mAnimToRightPositionCallback);
+        mNotify = true;
+    }
+
+    /**
+     * 重置两个圆的半径
+     */
+    private void resetCircleRadius() {
+        topCircle.setRadius(mMaxCircleRadius);
+        topCircle.setY(mMaxCircleRadius);
+
+        bottomCircle.setRadius(mMaxCircleRadius);
+        bottomCircle.setY(mMaxCircleRadius);
     }
 
     public Circle getTopCircle() {
@@ -355,20 +380,14 @@ public class WaterDropView extends View implements IRefreshHead {
         return bottomCircle;
     }
 
-    public void setIndicatorColor(int color) {
+    public void setWaterDropColor(int color) {
         mPaint.setColor(color);
     }
 
-    public int getIndicatorColor() {
+    public int getColor() {
         return mPaint.getColor();
     }
 
-    @Override
-    public void setOnPullListener(OnPullCallBackListener mListener) {
-        this.mListener = mListener;
-    }
-
-    @Override
     public void reset() {
         if (null != mAnimator)
             mAnimator.cancel();
@@ -376,7 +395,6 @@ public class WaterDropView extends View implements IRefreshHead {
         isRunning = false;
         mVisible = true;
         invalidate();
-        Log.i(TAG, "reset执行");
     }
 
     @Override
@@ -388,8 +406,10 @@ public class WaterDropView extends View implements IRefreshHead {
     public void finishPull(boolean isBeingDragged) {
         if (isBeingDragged)
             stop();
-        else
-            pullLayout.animToStartPosition(true);
+        else {
+            pullLayout.animToStartPosition(mAnimToStartPositionCallback);
+            mNeedReset = true;
+        }
     }
 
     /**
@@ -413,7 +433,7 @@ public class WaterDropView extends View implements IRefreshHead {
     public void onPull(float scrollY, boolean enable) {
         if (scrollY > mMaxDiameter && enable) {
             float offset = scrollY - mMaxDiameter;
-            float ratio = offset / maxDeformationRate;
+            float ratio = offset / mMaxDeformationRate;
             ratio = ratio > 1 ? 1 : ratio;
             update(ratio);
         }
@@ -422,16 +442,29 @@ public class WaterDropView extends View implements IRefreshHead {
     @Override
     public void onFingerUp(float scrollY) {
         if (isRefreshing() && scrollY < mMaxDiameter && scrollY >= 0) {
-            pullLayout.animToStartPosition(false);
+            pullLayout.animToStartPosition(mAnimToStartPositionCallback);
         } else if (isRefreshing()) {
-            pullLayout.animToRightPosition(mMaxDiameter, true, false);
+            pullLayout.animToRightPosition(mMaxDiameter, mAnimToRightPositionCallback);
         } else {
-            pullLayout.animToStartPosition(isStop());
+            pullLayout.animToStartPosition(mAnimToStartPositionCallback);
+            mNeedReset = isStop();
         }
     }
 
     @Override
     public void detach() {
 
+    }
+
+    public void setRefreshArrowColorColor(int refreshArrowColorColor) {
+        mRing.setColor(refreshArrowColorColor);
+    }
+
+    public void setLoadStartColor(int loadStartColor) {
+        mLoadDrawable.setStartColor(loadStartColor);
+    }
+
+    public void setLoadEndColor(int loadEndColor) {
+        mLoadDrawable.setEndColor(loadEndColor);
     }
 }

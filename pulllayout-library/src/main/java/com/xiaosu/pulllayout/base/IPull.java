@@ -8,15 +8,24 @@ package com.xiaosu.pulllayout.base;
 public interface IPull {
 
     /**
-     * @param reset  true表示重置
+     * @param callback 动画执行的回调
      */
-    void animToStartPosition(final boolean reset);
+    void animToStartPosition(AnimationCallback callback);
 
     /**
-     * @param targetY       偏移量
-     * @param isRefreshing true表示正在刷新
-     * @param notify       true表示使刷新
+     * @param targetY  偏移量
+     * @param callback 动画执行的回调
      */
-    void animToRightPosition(final float targetY, boolean isRefreshing, final boolean notify);
+    void animToRightPosition(final float targetY, AnimationCallback callback);
+
+    /**
+     * 上拉完成回调
+     */
+    void pullUpCallback();
+
+    /**
+     * 下拉回调
+     */
+    void pullDownCallback();
 
 }

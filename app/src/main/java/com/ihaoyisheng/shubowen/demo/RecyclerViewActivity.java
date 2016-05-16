@@ -1,5 +1,6 @@
 package com.ihaoyisheng.shubowen.demo;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -47,6 +48,7 @@ public class RecyclerViewActivity extends BaseActivity {
 
         @Override
         public void onBindViewHolder(TextViewHolder holder, int position) {
+            holder.text1.setTextColor(Color.BLACK);
             holder.text1.setText(mList.get(position));
         }
 

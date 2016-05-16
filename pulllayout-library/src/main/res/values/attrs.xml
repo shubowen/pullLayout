@@ -1,12 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
     <declare-styleable name="WaterDropView">
-        <attr name="max_circle_radius" format="dimension" />
-        <attr name="min_circle_radius" format="dimension" />
-        <attr name="waterdrop_color" format="color" />
-        <attr name="topcircle_x" format="dimension" />
-        <attr name="topcircle_y" format="dimension" />
-        <attr name="bottomcircle_x" format="dimension" />
-        <attr name="bottomcircle_y" format="dimension" />
+        <attr name="max_circle_radius" format="dimension"/>
+        <attr name="min_circle_radius" format="dimension"/>
+        <attr name="waterdrop_color" format="color"/>
+        <attr name="topcircle_x" format="dimension"/>
+        <attr name="topcircle_y" format="dimension"/>
+        <attr name="bottomcircle_x" format="dimension"/>
+        <attr name="bottomcircle_y" format="dimension"/>
     </declare-styleable>
+
+    <declare-styleable name="PullLayout">
+        <attr name="refreshArrowColor" format="color"/>
+        <attr name="indicatorArrowColor" format="color"/>
+        <attr name="waterDropColor" format="color"/>
+        <attr name="loadStartColor" format="color"/>
+        <attr name="loadEndColor" format="color"/>
+        <attr name="android:textColor"/>
+    </declare-styleable>
+
 </resources>
