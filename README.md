@@ -81,10 +81,11 @@
 
 **自定义头部和尾部**:自定义头部需继承IRefreshHead接口,尾部需继承ILoadFooter接口
 下面对这两个接口的方法做一些简单的说明,具体请参考WaterDropView和FooterView类实现
-    pullLayout(IPull iPull)方法目的是将PullLayout暴露出来,因为头部和尾部必须要操纵PullLayout收放
-    onPull(float scrollY, boolean enable)方法将当前手指拖动的距离暴露出来,可根据需求实现相应的逻辑
-    onFingerUp(float scrollY)方法将手指松开时PullLayout拉动的距离暴露出来,可根据需求实现相应的逻辑
-    finishPull(boolean isBeingDragged)表示一个完整的下拉或者上拉已经结束,isBeingDragged表示手指是否还在拖拽
+    
+    pullLayout(IPull iPull) //方法目的是将PullLayout暴露出来,因为头部和尾部必须要操纵PullLayout收放
+    onPull(float scrollY, boolean enable) //方法将当前手指拖动的距离暴露出来,可根据需求实现相应的逻辑
+    onFingerUp(float scrollY) //方法将手指松开时PullLayout拉动的距离暴露出来,可根据需求实现相应的逻辑
+    finishPull(boolean isBeingDragged) //表示一个完整的下拉或者上拉已经结束,isBeingDragged表示手指是否还在拖拽
     ......
     更多方法请参考接口说明,已经标注的很清楚
     
