@@ -27,6 +27,6 @@ dependencies {
     compile "com.android.support:appcompat-v7:${support_library_version}"
     compile "com.android.support:support-v4:${support_library_version}"
     compile "com.android.support:recyclerview-v7:${support_library_version}"
-    compile project(':pulllayout-library')
     compile 'com.jakewharton:butterknife:7.0.1'
+    compile 'com.xiaosu:pullLayout:1.1.0'
 }
