@@ -11,7 +11,7 @@
     
 在项目build.gradle 文件中添加依赖:
     
-    compile 'com.xiaosu:pullLayout:1.1.0'
+    compile 'com.xiaosu:pullLayout:1.3.0'
     
 布局文件中使用:
     
@@ -78,6 +78,22 @@
              android:layout_width="match_parent"
              android:layout_height="match_parent"
              app:theme="@style/pull_style">
+
+3.禁止下拉(默认开启):app:pullUpEnable="false"
+    
+    <com.xiaosu.pulllayout.PullLayout
+            android:id="@+id/pull_layout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:pullUpEnable="false">
+
+4.禁止上拉(默认开启):app:pullDownEnable="false"
+
+    <com.xiaosu.pulllayout.PullLayout
+            android:id="@+id/pull_layout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:pullUpEnable="false">
 
 **自定义头部和尾部**:自定义头部需继承IRefreshHead接口,尾部需继承ILoadFooter接口
 下面对这两个接口的方法做一些简单的说明,具体请参考WaterDropView和FooterView类实现

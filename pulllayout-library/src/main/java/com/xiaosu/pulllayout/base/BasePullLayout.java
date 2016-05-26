@@ -1,8 +1,7 @@
 package com.xiaosu.pulllayout.base;
 
 import android.content.Context;
-import android.os.Handler;
-import android.os.Looper;
+import android.content.res.TypedArray;
 import android.support.v4.view.MotionEventCompat;
 import android.support.v4.view.NestedScrollingChild;
 import android.support.v4.view.NestedScrollingChildHelper;
@@ -18,6 +17,8 @@ import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.Transformation;
 import android.widget.AbsListView;
+
+import com.xiaosu.pulllayout.R;
 
 public class BasePullLayout
         extends ViewGroup implements
@@ -67,6 +68,11 @@ public class BasePullLayout
     /*尾*/
     ILoadFooter mLoadFooter;
 
+    //是否可下拉
+    private boolean mPullDownEnable;
+    //是否可上拉
+    private boolean mPullUpEnable;
+
     @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
@@ -90,9 +96,13 @@ public class BasePullLayout
         ViewCompat.setChildrenDrawingOrderEnabled(this, true);
         // the absolute offset has to take into account that the circle starts at an offset
         mNestedScrollingParentHelper = new NestedScrollingParentHelper(this);
-
         mNestedScrollingChildHelper = new NestedScrollingChildHelper(this);
         setNestedScrollingEnabled(true);
+
+        TypedArray array = context.obtainStyledAttributes(attrs, R.styleable.PullLayout_enable);
+        mPullDownEnable = array.getBoolean(R.styleable.PullLayout_enable_pullDownEnable, true);
+        mPullUpEnable = array.getBoolean(R.styleable.PullLayout_enable_pullUpEnable, true);
+        array.recycle();
     }
 
     public void attachHeadView(IRefreshHead head) {
@@ -254,6 +264,12 @@ public class BasePullLayout
         }
     }
 
+
+    @Override
+    public boolean isEnabled() {
+        return mPullDownEnable || mPullUpEnable;
+    }
+
     @Override
     public boolean onInterceptTouchEvent(MotionEvent ev) {
         ensureTarget();
@@ -294,10 +310,10 @@ public class BasePullLayout
                 boolean canPullDown = canChildScrollDown() || (!canChildScrollDown() && !canChildScrollUp());
 
                 //yDiff > mTouchSlop向下移动,这个值只赋值一次,记录child初始位置
-                if (yDiff > mTouchSlop && canPullDown && !mIsBeingDragged && !mLoadFooter.isLoading()) {
+                if (yDiff > mTouchSlop && canPullDown && !mIsBeingDragged && !mLoadFooter.isLoading() && mPullDownEnable) {
                     mInitialMotionY = mInitialDownY + mTouchSlop;
                     mIsBeingDragged = true;
-                } else if (-yDiff > mTouchSlop && canChildScrollUp() && !mIsBeingDragged && !mRefreshHead.isRefreshing()) {
+                } else if (-yDiff > mTouchSlop && canChildScrollUp() && !mIsBeingDragged && !mRefreshHead.isRefreshing() && mPullUpEnable) {
                     //-yDiff > mTouchSlop向上移动,这个值只赋值一次,记录child初始位置
                     mInitialMotionY = mInitialDownY - mTouchSlop;
                     mIsBeingDragged = true;
@@ -457,7 +473,6 @@ public class BasePullLayout
         //防止在上拉或者下拉的过程中,往回拉过头的现象
         boolean canPullDown = canChildScrollDown() || (!canChildScrollDown() && !canChildScrollUp());
         overScroll = canPullDown ? overScroll < 0 ? 0 : overScroll : overScroll > 0 ? 0 : overScroll;
-
         updateLayout(overScroll);
     }
 
@@ -498,6 +513,7 @@ public class BasePullLayout
             @Override
             protected void applyTransformation(float fraction, Transformation t) {
                 updateLayout(evaluate(fraction, mScrollY, 0));
+                callback.onAnimation(fraction);
             }
         };
         animation.setDuration(1000);
@@ -523,9 +539,10 @@ public class BasePullLayout
             @Override
             protected void applyTransformation(float fraction, Transformation t) {
                 updateLayout(evaluate(fraction, mScrollY, targetY));
+                callback.onAnimation(fraction);
             }
         };
-        animation.setDuration(180);
+        animation.setDuration(300);
         animation.setAnimationListener(new SimpleAnimationListener() {
             @Override
             public void onAnimationStart(Animation animation) {
@@ -536,7 +553,6 @@ public class BasePullLayout
             @Override
             public void onAnimationEnd(Animation animation) {
                 if (null != callback) callback.onAnimationEnd();
-//                if (notify) mRefreshHead.refreshImmediately();
             }
         });
         startAnimation(animation);
@@ -556,14 +572,16 @@ public class BasePullLayout
      * 自动刷新数据
      */
     public void autoRefresh() {
-        mRefreshHead.autoRefresh();
+        if (canChildScrollDown()) {
+            mRefreshHead.autoRefresh();
+        }
     }
 
     /**
      * 在OnCreate方法中调用autoRefresh()方法
      */
     public void autoRefreshOnCreate() {
-        new Handler(Looper.getMainLooper()).post(new Runnable() {
+        post(new Runnable() {
             @Override
             public void run() {
                 post(new Runnable() {

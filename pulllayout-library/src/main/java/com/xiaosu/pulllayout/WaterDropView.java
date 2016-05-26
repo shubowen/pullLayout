@@ -74,8 +74,6 @@ public class WaterDropView extends View implements IRefreshHead {
     //true表示需要重置
     private boolean mNeedReset;
 
-    private boolean mNotify;
-
     AnimationCallback mAnimToStartPositionCallback = new AnimationCallback() {
         @Override
         public void onAnimationEnd() {
@@ -88,12 +86,11 @@ public class WaterDropView extends View implements IRefreshHead {
     };
 
     AnimationCallback mAnimToRightPositionCallback = new AnimationCallback() {
-        @Override
-        public void onAnimationEnd() {
 
-            if (mNotify) {
+        @Override
+        public void onAnimation(float fraction) {
+            if (fraction == 1) {
                 refreshImmediately();
-                mNotify = false;
             }
         }
     };
@@ -358,7 +355,6 @@ public class WaterDropView extends View implements IRefreshHead {
     @Override
     public void autoRefresh() {
         pullLayout.animToRightPosition(mMaxDiameter, mAnimToRightPositionCallback);
-        mNotify = true;
     }
 
     /**

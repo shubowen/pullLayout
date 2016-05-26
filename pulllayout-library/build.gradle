@@ -22,7 +22,7 @@ publish {
     userOrg = 'xiaosu'
     groupId = 'com.xiaosu'
     artifactId = 'pullLayout'
-    publishVersion = '1.1.0'
+    publishVersion = '1.3.0'
     desc = '这是android上拉刷新和下拉加载的库'
     website = 'https://github.com/shubowen/pullLayout'
 }

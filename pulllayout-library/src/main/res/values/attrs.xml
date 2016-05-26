@@ -20,4 +20,9 @@
         <attr name="android:textColor"/>
     </declare-styleable>
 
+    <declare-styleable name="PullLayout_enable">
+        <attr name="pullUpEnable" format="boolean"/>
+        <attr name="pullDownEnable" format="boolean"/>
+    </declare-styleable>
+
 </resources>
