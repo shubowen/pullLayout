@@ -11,7 +11,7 @@
     
 在项目build.gradle 文件中添加依赖:
     
-    compile 'com.xiaosu:pullLayout:1.3.0'
+    compile 'com.xiaosu:pullLayout:1.4.0'
     
 布局文件中使用:
     
@@ -79,7 +79,7 @@
              android:layout_height="match_parent"
              app:theme="@style/pull_style">
 
-3.禁止下拉(默认开启):app:pullDownEnable="false"
+3.禁止下拉(默认开启):app:pullDownEnable="false"或者代码setPullDownEnable(false)
     
     <com.xiaosu.pulllayout.PullLayout
             android:id="@+id/pull_layout"
@@ -87,7 +87,7 @@
             android:layout_height="match_parent"
             app:pullDownEnable="false">
 
-4.禁止上拉(默认开启):app:pullUpEnable="false"
+4.禁止上拉(默认开启):app:pullUpEnable="false"或者代码setPullUpEnable(false)
 
     <com.xiaosu.pulllayout.PullLayout
             android:id="@+id/pull_layout"

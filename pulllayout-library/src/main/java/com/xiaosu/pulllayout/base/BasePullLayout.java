@@ -730,4 +730,20 @@ public class BasePullLayout
 
         void onLoad();
     }
+
+    public boolean isPullDownEnable() {
+        return mPullDownEnable;
+    }
+
+    public void setPullDownEnable(boolean pullDownEnable) {
+        mPullDownEnable = pullDownEnable;
+    }
+
+    public boolean isPullUpEnable() {
+        return mPullUpEnable;
+    }
+
+    public void setPullUpEnable(boolean pullUpEnable) {
+        mPullUpEnable = pullUpEnable;
+    }
 }
