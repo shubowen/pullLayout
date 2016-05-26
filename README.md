@@ -79,15 +79,15 @@
              android:layout_height="match_parent"
              app:theme="@style/pull_style">
 
-3.禁止下拉(默认开启):app:pullUpEnable="false"
+3.禁止下拉(默认开启):app:pullDownEnable="false"
     
     <com.xiaosu.pulllayout.PullLayout
             android:id="@+id/pull_layout"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            app:pullUpEnable="false">
+            app:pullDownEnable="false">
 
-4.禁止上拉(默认开启):app:pullDownEnable="false"
+4.禁止上拉(默认开启):app:pullUpEnable="false"
 
     <com.xiaosu.pulllayout.PullLayout
             android:id="@+id/pull_layout"
