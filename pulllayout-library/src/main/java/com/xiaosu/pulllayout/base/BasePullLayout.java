@@ -513,7 +513,7 @@ public class BasePullLayout
             @Override
             protected void applyTransformation(float fraction, Transformation t) {
                 updateLayout(evaluate(fraction, mScrollY, 0));
-                callback.onAnimation(fraction);
+                if (null != callback) callback.onAnimation(fraction);
             }
         };
         animation.setDuration(1000);
@@ -539,7 +539,7 @@ public class BasePullLayout
             @Override
             protected void applyTransformation(float fraction, Transformation t) {
                 updateLayout(evaluate(fraction, mScrollY, targetY));
-                callback.onAnimation(fraction);
+                if (null != callback) callback.onAnimation(fraction);
             }
         };
         animation.setDuration(300);

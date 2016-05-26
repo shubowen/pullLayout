@@ -11,7 +11,7 @@
     
 在项目build.gradle 文件中添加依赖:
     
-    compile 'com.xiaosu:pullLayout:1.4.0'
+    compile 'com.xiaosu:pullLayout:1.4.1'
     
 布局文件中使用:
     
