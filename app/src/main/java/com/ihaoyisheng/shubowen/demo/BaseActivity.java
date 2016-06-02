@@ -13,7 +13,7 @@ import java.util.List;
  * 邮箱：shubowen123@sina.cn
  * 描述：
  */
-public abstract class BaseActivity extends AppCompatActivity implements PullLayout.OnPullCallBackListener{
+public abstract class BaseActivity extends AppCompatActivity implements PullLayout.OnPullCallBackListener {
 
     protected List<String> mList = new ArrayList<>();
 
@@ -25,8 +25,8 @@ public abstract class BaseActivity extends AppCompatActivity implements PullLayo
         }
     }
 
-    public void postDelay(Runnable action, long delayMillis){
-        getWindow().getDecorView().postDelayed(action,delayMillis);
+    public void postDelay(Runnable action, long delayMillis) {
+        getWindow().getDecorView().postDelayed(action, delayMillis);
     }
 
     @Override
@@ -44,9 +44,18 @@ public abstract class BaseActivity extends AppCompatActivity implements PullLayo
         postDelay(new Runnable() {
             @Override
             public void run() {
+                int size = mList.size();
+                for (int i = 20; i < size + 20; i++) {
+                    mList.add("this is the " + i + " item");
+                }
+                onLoadInner();
                 pullLayout().finishPull();
             }
         }, 3000);
+    }
+
+    protected void onLoadInner() {
+
     }
 
     protected abstract PullLayout pullLayout();

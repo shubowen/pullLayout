@@ -23,6 +23,7 @@ public class RecyclerViewActivity extends BaseActivity {
     RecyclerView recyclerView;
     @Bind(R.id.pull_layout)
     PullLayout mPullLayout;
+    private InnerAdapter mAdapter;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -30,7 +31,8 @@ public class RecyclerViewActivity extends BaseActivity {
         setContentView(R.layout.lay_recycler_list);
         ButterKnife.bind(this);
 
-        recyclerView.setAdapter(new InnerAdapter());
+        mAdapter = new InnerAdapter();
+        recyclerView.setAdapter(mAdapter);
         mPullLayout.setOnPullListener(this);
 
         mPullLayout.autoRefreshOnCreate();
@@ -39,6 +41,11 @@ public class RecyclerViewActivity extends BaseActivity {
     @Override
     protected PullLayout pullLayout() {
         return mPullLayout;
+    }
+
+    @Override
+    protected void onLoadInner() {
+        mAdapter.notifyDataSetChanged();
     }
 
     class InnerAdapter extends RecyclerView.Adapter<TextViewHolder> {

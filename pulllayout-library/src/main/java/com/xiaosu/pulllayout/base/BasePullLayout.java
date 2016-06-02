@@ -572,9 +572,7 @@ public class BasePullLayout
      * 自动刷新数据
      */
     public void autoRefresh() {
-        if (canChildScrollDown()) {
-            mRefreshHead.autoRefresh();
-        }
+        mRefreshHead.autoRefresh();
     }
 
     /**
