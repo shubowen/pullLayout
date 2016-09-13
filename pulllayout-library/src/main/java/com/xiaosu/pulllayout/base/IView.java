@@ -1,6 +1,7 @@
 package com.xiaosu.pulllayout.base;
 
 import android.view.View;
+import android.view.ViewGroup;
 
 /**
  * 作者：疏博文 创建于 2016-04-28 17:55
@@ -12,7 +13,7 @@ public interface IView {
     /**
      * @return 当前的view
      */
-    View getTargetView();
+    View getTargetView(ViewGroup parent);
 
     /**
      * 拖拽的回调

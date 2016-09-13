@@ -4,6 +4,7 @@ import android.content.Context;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -118,7 +119,7 @@ public class FooterView extends LinearLayout implements ILoadFooter {
     }
 
     @Override
-    public View getTargetView() {
+    public View getTargetView(ViewGroup parent) {
         return this;
     }
 

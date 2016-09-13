@@ -14,6 +14,7 @@ import android.graphics.RectF;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.animation.LinearInterpolator;
 
 import com.xiaosu.pulllayout.base.AnimationCallback;
@@ -421,7 +422,7 @@ public class WaterDropView extends View implements IRefreshHead {
     }
 
     @Override
-    public View getTargetView() {
+    public View getTargetView(ViewGroup parent) {
         return this;
     }
 

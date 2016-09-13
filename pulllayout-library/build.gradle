@@ -16,6 +16,7 @@ def support_library_version = "23.3.0"
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     compile "com.android.support:support-v4:${support_library_version}"
+    compile 'com.xiaosu.lib:spinkit:1.0.0'
 }
 //ad387540306d5e3c57666c69033588e9f67d3465
 publish {

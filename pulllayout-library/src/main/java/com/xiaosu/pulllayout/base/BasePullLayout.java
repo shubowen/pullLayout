@@ -516,7 +516,7 @@ public class BasePullLayout
                 if (null != callback) callback.onAnimation(fraction);
             }
         };
-        animation.setDuration(1000);
+        animation.setDuration(300);
         animation.setAnimationListener(new SimpleAnimationListener() {
             @Override
             public void onAnimationStart(Animation animation) {
@@ -552,6 +552,7 @@ public class BasePullLayout
 
             @Override
             public void onAnimationEnd(Animation animation) {
+                mReturningToStart = false;
                 if (null != callback) callback.onAnimationEnd();
             }
         });
