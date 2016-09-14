@@ -7,7 +7,8 @@ import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.xiaosu.pulllayout.PullLayout;
+import com.xiaosu.pulllayout.SimplePullLayout;
+import com.xiaosu.pulllayout.base.BasePullLayout;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -22,7 +23,7 @@ public class RecyclerViewActivity extends BaseActivity {
     @Bind(R.id.recyclerView)
     RecyclerView recyclerView;
     @Bind(R.id.pull_layout)
-    PullLayout mPullLayout;
+    SimplePullLayout mPullLayout;
     private InnerAdapter mAdapter;
 
     @Override
@@ -35,11 +36,11 @@ public class RecyclerViewActivity extends BaseActivity {
         recyclerView.setAdapter(mAdapter);
         mPullLayout.setOnPullListener(this);
 
-        mPullLayout.autoRefreshOnCreate();
+//        mPullLayout.autoRefreshOnCreate();
     }
 
     @Override
-    protected PullLayout pullLayout() {
+    protected BasePullLayout pullLayout() {
         return mPullLayout;
     }
 
@@ -74,6 +75,7 @@ public class RecyclerViewActivity extends BaseActivity {
 
         public TextViewHolder(ViewGroup parent) {
             super(LayoutInflater.from(parent.getContext()).inflate(android.R.layout.simple_list_item_1, parent, false));
+            itemView.setBackgroundColor(Color.WHITE);
             ButterKnife.bind(this, itemView);
         }
     }

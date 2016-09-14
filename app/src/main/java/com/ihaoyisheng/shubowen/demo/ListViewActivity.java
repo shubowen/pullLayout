@@ -9,6 +9,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.xiaosu.pulllayout.PullLayout;
+import com.xiaosu.pulllayout.base.BasePullLayout;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -36,7 +37,7 @@ public class ListViewActivity extends BaseActivity {
     }
 
     @Override
-    protected PullLayout pullLayout() {
+    protected BasePullLayout pullLayout() {
         return pullLayout;
     }
 

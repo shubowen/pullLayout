@@ -1,4 +1,4 @@
-package com.xiaosu.pulllayout;
+package com.xiaosu.pulllayout.head;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -17,6 +17,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.LinearInterpolator;
 
+import com.xiaosu.pulllayout.Circle;
+import com.xiaosu.pulllayout.R;
 import com.xiaosu.pulllayout.base.AnimationCallback;
 import com.xiaosu.pulllayout.base.IPull;
 import com.xiaosu.pulllayout.base.IRefreshHead;
@@ -407,6 +409,11 @@ public class WaterDropView extends View implements IRefreshHead {
             pullLayout.animToStartPosition(mAnimToStartPositionCallback);
             mNeedReset = true;
         }
+    }
+
+    @Override
+    public void finishPull(boolean isBeingDragged, CharSequence msg, boolean result) {
+        finishPull(isBeingDragged);
     }
 
     /**

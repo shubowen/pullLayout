@@ -106,29 +106,29 @@ public class BasePullLayout
     }
 
     public void attachHeadView(IRefreshHead head) {
-        if (null == head || null == head.getTargetView()) {
+        if (null == head || null == head.getTargetView(this)) {
             throw new RuntimeException("head不能为空");
         }
         if (null != mRefreshHead) {
-            removeView(mRefreshHead.getTargetView());
+            removeView(mRefreshHead.getTargetView(this));
         }
         mRefreshHead = head;
         mRefreshHead.pullLayout(this);
 
-        addView(mRefreshHead.getTargetView());
+        addView(mRefreshHead.getTargetView(this));
     }
 
     public void attachFooterView(ILoadFooter footer) {
-        if (null == footer || null == footer.getTargetView()) {
+        if (null == footer || null == footer.getTargetView(this)) {
             throw new RuntimeException("footer不能为空");
         }
         if (null != mLoadFooter) {
-            removeView(mLoadFooter.getTargetView());
+            removeView(mLoadFooter.getTargetView(this));
         }
         mLoadFooter = footer;
         mLoadFooter.pullLayout(this);
 
-        addView(mLoadFooter.getTargetView());
+        addView(mLoadFooter.getTargetView(this));
     }
 
     @Override
@@ -153,7 +153,7 @@ public class BasePullLayout
         if (mTarget == null) {
             for (int i = 0; i < getChildCount(); i++) {
                 View child = getChildAt(i);
-                if (!child.equals(mRefreshHead.getTargetView()) && !child.equals(mLoadFooter.getTargetView())) {
+                if (!child.equals(mRefreshHead.getTargetView(this)) && !child.equals(mLoadFooter.getTargetView(this))) {
                     mTarget = child;
                     break;
                 }
@@ -180,11 +180,11 @@ public class BasePullLayout
         final int childWidth = mWidth - childPaddingLeft - childPaddingRight;
         final int childHeight = mHeight - childPaddingTop - childPaddingBottom;
 
-        int mFooterWidth = mLoadFooter.getTargetView().getMeasuredWidth();
-        int mFooterHeight = mLoadFooter.getTargetView().getMeasuredHeight();
+        int mFooterWidth = mLoadFooter.getTargetView(this).getMeasuredWidth();
+        int mFooterHeight = mLoadFooter.getTargetView(this).getMeasuredHeight();
 
-        int mHeadWidth = mRefreshHead.getTargetView().getMeasuredWidth();
-        int mHeadHeight = mRefreshHead.getTargetView().getMeasuredHeight();
+        int mHeadWidth = mRefreshHead.getTargetView(this).getMeasuredWidth();
+        int mHeadHeight = mRefreshHead.getTargetView(this).getMeasuredHeight();
 
         int offset = Math.round(mScrollY);
         child.layout(childPaddingLeft,
@@ -193,11 +193,14 @@ public class BasePullLayout
                 childPaddingTop + childHeight + offset);
 
         int footerTop = childHeight + childPaddingBottom + offset;
-        mLoadFooter.getTargetView().layout(0, footerTop, mFooterWidth, footerTop + mFooterHeight);
+        mLoadFooter.getTargetView(this)
+                .layout(0, footerTop, mFooterWidth, footerTop + mFooterHeight);
 
         int next = -mHeadHeight + childPaddingTop + offset;
-        next = next > 0 ? 0 : next;
-        mRefreshHead.getTargetView().layout((mWidth - mHeadWidth) / 2, next, (mWidth + mHeadWidth) / 2, offset + childPaddingTop);
+//        next = next > 0 ? 0 : next;
+
+        mRefreshHead.getTargetView(this)
+                .layout((mWidth - mHeadWidth) / 2, next, (mWidth + mHeadWidth) / 2, offset + childPaddingTop);
     }
 
     @Override
@@ -215,12 +218,12 @@ public class BasePullLayout
                 MeasureSpec.EXACTLY), MeasureSpec.makeMeasureSpec(
                 getMeasuredHeight() - getPaddingTop() - getPaddingBottom(), MeasureSpec.EXACTLY));
 
-        mLoadFooter.getTargetView().measure(widthMeasureSpec, heightMeasureSpec);
-        mRefreshHead.getTargetView().measure(widthMeasureSpec, heightMeasureSpec);
+        measureChild(mLoadFooter.getTargetView(this), widthMeasureSpec, heightMeasureSpec);
+        measureChild(mRefreshHead.getTargetView(this), widthMeasureSpec, heightMeasureSpec);
 
         // Get the index of the mRefreshHead
         for (int index = 0; index < getChildCount(); index++) {
-            if (getChildAt(index) == mRefreshHead.getTargetView()) {
+            if (getChildAt(index) == mRefreshHead.getTargetView(this)) {
                 mHeadViewIndex = index;
                 break;
             }
@@ -489,7 +492,7 @@ public class BasePullLayout
             } else if (mScrollY < 0) {
                 mLoadFooter.onPull(mScrollY, !mRefreshHead.isRefreshing());
             }
-            mRefreshHead.getTargetView().requestLayout();
+            mRefreshHead.getTargetView(this).requestLayout();
         }
     }
 
@@ -697,6 +700,17 @@ public class BasePullLayout
             mRefreshHead.finishPull(mIsBeingDragged);
         } else {
             mLoadFooter.finishPull(mIsBeingDragged);
+        }
+    }
+
+    /**
+     * 拉回
+     */
+    public void finishPull(CharSequence msg, boolean result) {
+        if (mScrollY >= 0) {
+            mRefreshHead.finishPull(mIsBeingDragged, msg, result);
+        } else {
+            mLoadFooter.finishPull(mIsBeingDragged, msg, result);
         }
     }
 

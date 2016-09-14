@@ -1,4 +1,4 @@
-package com.xiaosu.pulllayout;
+package com.xiaosu.pulllayout.footer;
 
 import android.content.Context;
 import android.view.Gravity;
@@ -9,6 +9,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.xiaosu.pulllayout.R;
 import com.xiaosu.pulllayout.base.AnimationCallback;
 import com.xiaosu.pulllayout.base.ILoadFooter;
 import com.xiaosu.pulllayout.base.IPull;
@@ -101,6 +102,11 @@ public class FooterView extends LinearLayout implements ILoadFooter {
     @Override
     public void finishPull(boolean isBeingDragged) {
         pullLayout.animToStartPosition(mAnimationCallback);
+    }
+
+    @Override
+    public void finishPull(boolean isBeingDragged, CharSequence msg, boolean result) {
+        finishPull(isBeingDragged);
     }
 
     /**

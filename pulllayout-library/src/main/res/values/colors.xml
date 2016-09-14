@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="failed">#FF0000</color>
+    <color name="text_color">#333333</color>
+</resources>

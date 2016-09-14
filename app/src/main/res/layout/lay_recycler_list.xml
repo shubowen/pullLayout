@@ -5,7 +5,7 @@
               android:layout_height="match_parent"
               android:orientation="vertical">
 
-    <com.xiaosu.pulllayout.PullLayout
+    <com.xiaosu.pulllayout.SimplePullLayout
         android:id="@+id/pull_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -17,6 +17,6 @@
             android:layout_height="match_parent"
             app:layoutManager="android.support.v7.widget.LinearLayoutManager"/>
 
-    </com.xiaosu.pulllayout.PullLayout>
+    </com.xiaosu.pulllayout.SimplePullLayout>
 
 </LinearLayout>

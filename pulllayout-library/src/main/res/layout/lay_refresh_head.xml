@@ -11,15 +11,14 @@
     <ImageView
         android:id="@+id/iv_arrow"
         android:layout_width="20dp"
-        android:layout_height="20dp"
-        android:visibility="gone"/>
+        android:layout_height="20dp"/>
 
     <com.github.ybq.android.spinkit.SpinKitView
         android:id="@+id/spin_kit"
         style="@style/spinKit_style"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"/>
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:visibility="gone"/>
 
     <TextView
         android:id="@+id/tv_tip"
@@ -27,6 +26,7 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="20dp"
         android:text="@string/pull_refresh"
-        android:textSize="16dp"/>
+        android:textColor="@color/text_color"
+        android:textSize="@dimen/text_size"/>
 
 </LinearLayout>

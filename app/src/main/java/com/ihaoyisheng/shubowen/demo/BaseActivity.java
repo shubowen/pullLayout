@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
 import com.xiaosu.pulllayout.PullLayout;
+import com.xiaosu.pulllayout.base.BasePullLayout;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,7 +35,7 @@ public abstract class BaseActivity extends AppCompatActivity implements PullLayo
         postDelay(new Runnable() {
             @Override
             public void run() {
-                pullLayout().finishPull();
+                pullLayout().finishPull("网络错误", false);
             }
         }, 3000);
     }
@@ -58,6 +59,6 @@ public abstract class BaseActivity extends AppCompatActivity implements PullLayo
 
     }
 
-    protected abstract PullLayout pullLayout();
+    protected abstract BasePullLayout pullLayout();
 
 }
