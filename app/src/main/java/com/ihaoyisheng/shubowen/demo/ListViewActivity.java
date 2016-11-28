@@ -26,6 +26,7 @@ public class ListViewActivity extends BaseActivity {
     ListView listView;
     @Bind(R.id.pull_layout)
     PullLayout pullLayout;
+    private InnerAdapter mAdapter;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -33,7 +34,13 @@ public class ListViewActivity extends BaseActivity {
         setContentView(R.layout.lay_list_view);
         ButterKnife.bind(this);
         pullLayout.setOnPullListener(this);
-        listView.setAdapter(new InnerAdapter());
+        mAdapter = new InnerAdapter();
+        listView.setAdapter(mAdapter);
+    }
+
+    @Override
+    protected void onLoadInner() {
+        mAdapter.notifyDataSetChanged();
     }
 
     @Override

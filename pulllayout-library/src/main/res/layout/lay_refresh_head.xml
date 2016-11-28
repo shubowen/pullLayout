@@ -5,8 +5,8 @@
     android:layout_height="wrap_content"
     android:gravity="center"
     android:orientation="horizontal"
-    android:paddingBottom="10dp"
-    android:paddingTop="10dp">
+    android:paddingBottom="@dimen/padding"
+    android:paddingTop="@dimen/padding">
 
     <ImageView
         android:id="@+id/iv_arrow"

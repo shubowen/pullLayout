@@ -7,7 +7,7 @@ import android.util.AttributeSet;
 import android.view.LayoutInflater;
 
 import com.xiaosu.pulllayout.base.BasePullLayout;
-import com.xiaosu.pulllayout.footer.FooterView;
+import com.xiaosu.pulllayout.footer.SimpleLoadView;
 import com.xiaosu.pulllayout.head.WaterDropView;
 
 public class PullLayout extends BasePullLayout {
@@ -39,11 +39,12 @@ public class PullLayout extends BasePullLayout {
         headView.setLoadEndColor(loadEndColor);
         attachHeadView(headView);
 
-        FooterView footer = new FooterView(context);
+        SimpleLoadView footer = new SimpleLoadView(context);
         footer.setTextColor(textColor);
         footer.setIndicatorArrowColorColor(indicatorArrowColor);
         footer.setLoadStartColor(loadStartColor);
         footer.setLoadEndColor(loadEndColor);
+        footer.setLayoutParams(new LayoutParams(-1, -2));
         attachFooterView(footer);
     }
 }

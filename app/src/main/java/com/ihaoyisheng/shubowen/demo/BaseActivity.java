@@ -35,7 +35,7 @@ public abstract class BaseActivity extends AppCompatActivity implements PullLayo
         postDelay(new Runnable() {
             @Override
             public void run() {
-                pullLayout().finishPull("网络错误", false);
+                pullLayout().succeed();
             }
         }, 3000);
     }
@@ -50,7 +50,7 @@ public abstract class BaseActivity extends AppCompatActivity implements PullLayo
                     mList.add("this is the " + i + " item");
                 }
                 onLoadInner();
-                pullLayout().finishPull();
+                pullLayout().succeed();
             }
         }, 3000);
     }

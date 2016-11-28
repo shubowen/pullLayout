@@ -11,14 +11,13 @@
     
 在项目build.gradle 文件中添加依赖:
     
-    compile 'com.xiaosu:pullLayout:1.4.2'
+    compile 'com.xiaosu:pullLayout:2.0.0'
     
 布局文件中使用:
     
-    <com.xiaosu.pulllayout.PullLayout
+    <com.xiaosu.pulllayout.SimplePullLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            app:theme="@style/pull_style">
+            android:layout_height="match_parent">
     
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/recyclerView"
@@ -43,9 +42,9 @@
 
     mPullLayout.finishPull();
 
-**很多的时候我们需要在可下拉刷新的列表界面第一次进入的时候显示刷新头的加载动画,这个时候,在设置了PullLayout回调监听的前提下,我们只要在OnCreate中调用一行代码:**
+**很多的时候我们需要在列表界面第一次进入的时候显示刷新头的加载动画,这个时候,在设置了PullLayout回调监听的前提下,只要在OnCreate中调用一行代码:**
 
-    mPullLayout.autoRefreshOnCreate();
+    mPullLayout.postRefresh();
 
 **就可实现,该方法会回调onRefresh()方法,不需要做其他的任何操作.界面绘制完成的情况在如果要代码刷新界面可调用:**
     
@@ -74,10 +73,9 @@
 
 2.布局中使用
     
-    <com.xiaosu.pulllayout.PullLayout
+    <com.xiaosu.pulllayout.SimplePullLayout
              android:layout_width="match_parent"
-             android:layout_height="match_parent"
-             app:theme="@style/pull_style">
+             android:layout_height="match_parent">
 
 3.禁止下拉(默认开启):app:pullDownEnable="false"或者代码setPullDownEnable(false)
     
@@ -110,5 +108,5 @@
     attachHeadView(IRefreshHead head)关联头部
     attachFooterView(ILoadFooter footer)关联尾部
 
-**如果还有不明白的地方或者问题,欢迎在issues上提出,也可直接联系我,我的QQ:1912504163**
+**如果还有不明白的地方或者问题,欢迎在issues上提出
 **如果哪位大牛有什么修改意见,非常欢迎**

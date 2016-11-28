@@ -21,7 +21,7 @@ import com.xiaosu.pulllayout.drawable.FooterAnimDrawable;
  * 邮箱：shubowen123@sina.cn
  * 描述：
  */
-public class FooterView extends LinearLayout implements ILoadFooter {
+public class SimpleLoadView extends LinearLayout implements ILoadFooter {
 
     private static final String TAG = "Mr.su";
 
@@ -50,7 +50,7 @@ public class FooterView extends LinearLayout implements ILoadFooter {
         }
     };
 
-    public FooterView(Context context) {
+    public SimpleLoadView(Context context) {
         super(context);
         setOrientation(HORIZONTAL);
         setGravity(Gravity.CENTER);
@@ -100,13 +100,8 @@ public class FooterView extends LinearLayout implements ILoadFooter {
     }
 
     @Override
-    public void finishPull(boolean isBeingDragged) {
-        pullLayout.animToStartPosition(mAnimationCallback);
-    }
-
-    @Override
     public void finishPull(boolean isBeingDragged, CharSequence msg, boolean result) {
-        finishPull(isBeingDragged);
+        pullLayout.animToStartPosition(mAnimationCallback);
     }
 
     /**

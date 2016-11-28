@@ -47,13 +47,6 @@ public interface IView {
      * 拉回
      *
      * @param isBeingDragged true表示手指还在拖动状态
-     */
-    void finishPull(boolean isBeingDragged);
-
-    /**
-     * 拉回
-     *
-     * @param isBeingDragged true表示手指还在拖动状态
      * @param msg            提示消息
      * @param result         是否成功
      */

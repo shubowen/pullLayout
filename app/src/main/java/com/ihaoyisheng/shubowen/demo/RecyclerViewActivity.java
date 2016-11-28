@@ -36,7 +36,7 @@ public class RecyclerViewActivity extends BaseActivity {
         recyclerView.setAdapter(mAdapter);
         mPullLayout.setOnPullListener(this);
 
-//        mPullLayout.autoRefreshOnCreate();
+        mPullLayout.postRefresh();
     }
 
     @Override

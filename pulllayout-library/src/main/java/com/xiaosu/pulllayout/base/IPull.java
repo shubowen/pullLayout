@@ -16,6 +16,12 @@ public interface IPull {
      * @param targetY  偏移量
      * @param callback 动画执行的回调
      */
+    void animToRightPosition(final float targetY, long duration, AnimationCallback callback);
+
+    /**
+     * @param targetY  偏移量
+     * @param callback 动画执行的回调
+     */
     void animToRightPosition(final float targetY, AnimationCallback callback);
 
     /**

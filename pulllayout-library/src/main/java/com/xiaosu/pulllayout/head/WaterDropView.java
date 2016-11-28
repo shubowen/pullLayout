@@ -402,18 +402,13 @@ public class WaterDropView extends View implements IRefreshHead {
     }
 
     @Override
-    public void finishPull(boolean isBeingDragged) {
+    public void finishPull(boolean isBeingDragged, CharSequence msg, boolean result) {
         if (isBeingDragged)
             stop();
         else {
             pullLayout.animToStartPosition(mAnimToStartPositionCallback);
             mNeedReset = true;
         }
-    }
-
-    @Override
-    public void finishPull(boolean isBeingDragged, CharSequence msg, boolean result) {
-        finishPull(isBeingDragged);
     }
 
     /**

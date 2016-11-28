@@ -1,4 +1,4 @@
-package com.xiaosu.pulllayout.head;
+package com.xiaosu.pulllayout.footer;
 
 import android.graphics.Color;
 import android.view.LayoutInflater;
@@ -13,8 +13,8 @@ import com.github.ybq.android.spinkit.Style;
 import com.github.ybq.android.spinkit.sprite.Sprite;
 import com.xiaosu.pulllayout.R;
 import com.xiaosu.pulllayout.base.AnimationCallback;
+import com.xiaosu.pulllayout.base.ILoadFooter;
 import com.xiaosu.pulllayout.base.IPull;
-import com.xiaosu.pulllayout.base.IRefreshHead;
 import com.xiaosu.pulllayout.drawable.FooterAnimDrawable;
 
 /**
@@ -22,13 +22,13 @@ import com.xiaosu.pulllayout.drawable.FooterAnimDrawable;
  * 邮箱：shubowen123@sina.cn
  * 描述：
  */
-public class SimpleRefreshHead implements IRefreshHead {
+public class SimpleLoadFooter implements ILoadFooter {
 
     private static final String TAG = "SimpleRefreshHead";
 
-    boolean isRefreshing = false;
+    boolean isLoading = false;
 
-    private View mHeadView;
+    private View mFooterView;
     private TextView mTvTip;
     private SpinKitView mSpinKit;
     private ImageView mIvArrow;
@@ -37,87 +37,55 @@ public class SimpleRefreshHead implements IRefreshHead {
     private FooterAnimDrawable mAnimDrawable;
     private boolean mHasSprite;
 
-    private boolean mArrowDown = true;
+    private boolean mArrowDown = false;
     private IPull iPull;
-    private boolean mReturningToRefresh;
+    private boolean mReturningToLoading;
     /*临界距离*/
     private int mCriticalDis;
 
     @Override
-    public boolean isRefreshing() {
-        return isRefreshing;
-    }
-
-    @Override
-    public void refreshImmediately() {
-        autoRefresh();
-    }
-
-    @Override
-    public void autoRefresh() {
-        getDistance();
-        iPull.animToRightPosition(mHeadViewHeight, 0, new AnimationCallback() {
-            @Override
-            public void onAnimationEnd() {
-                isRefreshing = true;
-                showSpinKit();
-                mTvTip.setText(R.string.refreshing);
-                iPull.pullDownCallback();
-            }
-        });
-    }
-
-    @Override
     public View getTargetView(ViewGroup parent) {
-        if (null == mHeadView) {
-            mHeadView = LayoutInflater.from(parent.getContext()).inflate(R.layout.lay_refresh_head, parent, false);
-            mIvArrow = (ImageView) mHeadView.findViewById(R.id.iv_arrow);
+        if (null == mFooterView) {
+            mFooterView = LayoutInflater.from(parent.getContext()).inflate(R.layout.lay_refresh_head, parent, false);
+            mIvArrow = (ImageView) mFooterView.findViewById(R.id.iv_arrow);
 
             mAnimDrawable = new FooterAnimDrawable();
-            mAnimDrawable.arrowDown();
 
             mIvArrow.setImageDrawable(mAnimDrawable);
-            mSpinKit = (SpinKitView) mHeadView.findViewById(R.id.spin_kit);
-            mTvTip = (TextView) mHeadView.findViewById(R.id.tv_tip);
+            mSpinKit = (SpinKitView) mFooterView.findViewById(R.id.spin_kit);
+            mTvTip = (TextView) mFooterView.findViewById(R.id.tv_tip);
         }
-        return mHeadView;
+        return mFooterView;
     }
 
     @Override
     public void onPull(float scrollY, boolean enable) {
 
-        if (!enable || mReturningToRefresh || isRefreshing) return;
+        if (!enable || mReturningToLoading || isLoading) return;
 
-        getDistance();
+        if (mHeadViewHeight == -1) {
+            mHeadViewHeight = mFooterView.getHeight();
+            mCriticalDis = (int) (mHeadViewHeight * 1.3f);
+        }
 
-        if (scrollY >= mCriticalDis && mArrowDown) {
-            showArrow();
-            mAnimDrawable.arrowUp();
-            mTvTip.setText(R.string.release_refresh);
-
-            mArrowDown = false;
-        } else if (scrollY < mCriticalDis && !mArrowDown) {
+        if (-scrollY > mCriticalDis && !mArrowDown) {
+            if (!mHasSprite) {
+                Sprite sprite = SpriteFactory.create(Style.FADING_RECT);
+                sprite.setColor(Color.GRAY);
+                mSpinKit.setIndeterminateDrawable(sprite);
+                mHasSprite = true;
+            }
             showArrow();
             mAnimDrawable.arrowDown();
-            mTvTip.setText(R.string.pull_refresh);
+            mTvTip.setText(R.string.release_to_loading);
 
             mArrowDown = true;
-        }
-    }
+        } else if (-scrollY <= mCriticalDis && mArrowDown) {
+            showArrow();
+            mAnimDrawable.arrowUp();
+            mTvTip.setText(R.string.up_to_loading);
 
-    private void initSprite() {
-        if (!mHasSprite) {
-            Sprite sprite = SpriteFactory.create(Style.FADING_RECT);
-            sprite.setColor(Color.GRAY);
-            mSpinKit.setIndeterminateDrawable(sprite);
-            mHasSprite = true;
-        }
-    }
-
-    private void getDistance() {
-        if (mHeadViewHeight == -1) {
-            mHeadViewHeight = mHeadView.getHeight();
-            mCriticalDis = (int) (mHeadViewHeight * 1.3f);
+            mArrowDown = false;
         }
     }
 
@@ -129,7 +97,6 @@ public class SimpleRefreshHead implements IRefreshHead {
     }
 
     private void showSpinKit() {
-        initSprite();
         if (View.VISIBLE == mIvArrow.getVisibility())
             mIvArrow.setVisibility(View.GONE);
         if (View.VISIBLE != mSpinKit.getVisibility())
@@ -139,13 +106,12 @@ public class SimpleRefreshHead implements IRefreshHead {
     @Override
     public void onFingerUp(float scrollY) {
 
-        if (isRefreshing) {
-            //刷新的情况下直接拉回
-            iPull.animToRightPosition(mHeadViewHeight, null);
+        if (isLoading) {
+            iPull.animToRightPosition(-mHeadViewHeight, null);
             return;
         }
 
-        if (mArrowDown) {//回到原位
+        if (!mArrowDown) {//回到原位
             iPull.animToStartPosition(new AnimationCallback() {
                 @Override
                 public void onAnimationEnd() {
@@ -153,19 +119,19 @@ public class SimpleRefreshHead implements IRefreshHead {
                 }
             });
         } else {
-            mReturningToRefresh = true;
-            isRefreshing = true;
-            iPull.animToRightPosition(mHeadViewHeight, new AnimationCallback() {
+            mReturningToLoading = true;
+            isLoading = true;
+            iPull.animToRightPosition(-mHeadViewHeight, new AnimationCallback() {
                 @Override
                 public void onAnimationStart() {
                     showSpinKit();
-                    mTvTip.setText(R.string.refreshing);
+                    mTvTip.setText(R.string.loading);
                 }
 
                 @Override
                 public void onAnimationEnd() {
-                    mReturningToRefresh = false;
-                    iPull.pullDownCallback();
+                    mReturningToLoading = false;
+                    iPull.pullUpCallback();
                 }
             });
         }
@@ -183,7 +149,7 @@ public class SimpleRefreshHead implements IRefreshHead {
 
     @Override
     public void finishPull(boolean isBeingDragged, final CharSequence msg, final boolean result) {
-        iPull.animToRightPosition(mHeadViewHeight, new AnimationCallback() {
+        iPull.animToRightPosition(-mHeadViewHeight, new AnimationCallback() {
             @Override
             public void onAnimationStart() {
                 mTvTip.setText(msg);
@@ -198,7 +164,7 @@ public class SimpleRefreshHead implements IRefreshHead {
 
             @Override
             public void onAnimationEnd() {
-                mHeadView.postDelayed(new Runnable() {
+                mFooterView.postDelayed(new Runnable() {
                     @Override
                     public void run() {
                         iPull.animToStartPosition(new AnimationCallback() {
@@ -215,9 +181,14 @@ public class SimpleRefreshHead implements IRefreshHead {
     }
 
     private void reset() {
-        isRefreshing = false;
+        isLoading = false;
         mIvArrow.setImageDrawable(mAnimDrawable);
         mTvTip.setText(R.string.pull_refresh);
         mTvTip.setTextColor(mTvTip.getContext().getResources().getColor(R.color.text_color));
+    }
+
+    @Override
+    public boolean isLoading() {
+        return isLoading;
     }
 }

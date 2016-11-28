@@ -510,8 +510,14 @@ public class BasePullLayout
      */
     @Override
     public void animToStartPosition(final AnimationCallback callback) {
-        if (mScrollY == 0 && !mRefreshHead.isRefreshing() && !mLoadFooter.isLoading())
+        if (mScrollY == 0 && !mRefreshHead.isRefreshing() && !mLoadFooter.isLoading()) {
+            if (null != callback) {
+                callback.onAnimationStart();
+                callback.onAnimationEnd();
+            }
             return;
+        }
+
         Animation animation = new Animation() {
             @Override
             protected void applyTransformation(float fraction, Transformation t) {
@@ -538,6 +544,19 @@ public class BasePullLayout
 
     @Override
     public void animToRightPosition(final float targetY, final AnimationCallback callback) {
+        animToRightPosition(targetY, 300, callback);
+    }
+
+    @Override
+    public void animToRightPosition(final float targetY, long duration, final AnimationCallback callback) {
+        if (targetY == mScrollY) {
+            if (null != callback) {
+                callback.onAnimationStart();
+                callback.onAnimationEnd();
+            }
+            return;
+        }
+
         Animation animation = new Animation() {
             @Override
             protected void applyTransformation(float fraction, Transformation t) {
@@ -545,7 +564,7 @@ public class BasePullLayout
                 if (null != callback) callback.onAnimation(fraction);
             }
         };
-        animation.setDuration(300);
+        animation.setDuration(duration);
         animation.setAnimationListener(new SimpleAnimationListener() {
             @Override
             public void onAnimationStart(Animation animation) {
@@ -582,7 +601,7 @@ public class BasePullLayout
     /**
      * 在OnCreate方法中调用autoRefresh()方法
      */
-    public void autoRefreshOnCreate() {
+    public void postRefresh() {
         post(new Runnable() {
             @Override
             public void run() {
@@ -693,13 +712,26 @@ public class BasePullLayout
     }
 
     /**
-     * 拉回
+     * 成功
      */
-    public void finishPull() {
-        if (mScrollY >= 0) {
-            mRefreshHead.finishPull(mIsBeingDragged);
-        } else {
-            mLoadFooter.finishPull(mIsBeingDragged);
+    public void succeed() {
+        if (mRefreshHead.isRefreshing()) {
+            mRefreshHead.finishPull(mIsBeingDragged, getContext().getString(R.string.refresh_succeed), true);
+        }
+        if (mLoadFooter.isLoading()) {
+            mLoadFooter.finishPull(mIsBeingDragged, getContext().getString(R.string.load_succeed), true);
+        }
+    }
+
+    /**
+     * 失败
+     */
+    public void failed() {
+        if (mRefreshHead.isRefreshing()) {
+            mRefreshHead.finishPull(mIsBeingDragged, getContext().getString(R.string.refresh_failed), false);
+        }
+        if (mLoadFooter.isLoading()) {
+            mLoadFooter.finishPull(mIsBeingDragged, getContext().getString(R.string.load_failed), false);
         }
     }
 
@@ -707,9 +739,10 @@ public class BasePullLayout
      * 拉回
      */
     public void finishPull(CharSequence msg, boolean result) {
-        if (mScrollY >= 0) {
+        if (mRefreshHead.isRefreshing()) {
             mRefreshHead.finishPull(mIsBeingDragged, msg, result);
-        } else {
+        }
+        if (mLoadFooter.isLoading()) {
             mLoadFooter.finishPull(mIsBeingDragged, msg, result);
         }
     }
