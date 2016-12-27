@@ -209,7 +209,7 @@ public class SimpleRefreshHead implements IRefreshHead {
                             }
                         });
                     }
-                }, 800);
+                }, 300);
             }
         });
     }

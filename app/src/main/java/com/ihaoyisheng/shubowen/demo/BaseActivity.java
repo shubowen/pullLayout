@@ -21,7 +21,7 @@ public abstract class BaseActivity extends AppCompatActivity implements PullLayo
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        for (int i = 0; i < 20; i++) {
+        for (int i = 0; i < 30; i++) {
             mList.add("this is the " + i + " item");
         }
     }

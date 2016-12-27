@@ -8,17 +8,22 @@ import android.support.v4.view.NestedScrollingChildHelper;
 import android.support.v4.view.NestedScrollingParent;
 import android.support.v4.view.NestedScrollingParentHelper;
 import android.support.v4.view.ViewCompat;
+import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
+import android.view.animation.AccelerateInterpolator;
 import android.view.animation.Animation;
 import android.view.animation.Transformation;
 import android.widget.AbsListView;
+import android.widget.ScrollView;
 
 import com.xiaosu.pulllayout.R;
+
+import java.lang.reflect.Method;
 
 public class BasePullLayout
         extends ViewGroup implements
@@ -234,6 +239,7 @@ public class BasePullLayout
      * @return child在竖直方向上是否能向上滚动
      */
     public boolean canChildScrollUp() {
+
         if (android.os.Build.VERSION.SDK_INT < 14) {
             if (mTarget instanceof AbsListView) {
                 final AbsListView absListView = (AbsListView) mTarget;
@@ -249,6 +255,7 @@ public class BasePullLayout
     }
 
     public boolean canChildScrollDown() {
+
         if (android.os.Build.VERSION.SDK_INT < 14) {
             if (mTarget instanceof AbsListView) {
                 final AbsListView absListView = (AbsListView) mTarget;
@@ -310,10 +317,13 @@ public class BasePullLayout
                 }
                 final float yDiff = y - mInitialDownY;
 
-                boolean canPullDown = canChildScrollDown() || (!canChildScrollDown() && !canChildScrollUp());
+                Log.i(TAG, "canChildScrollUp: " + canChildScrollUp());
+                Log.i(TAG, "canChildScrollDown: " + canChildScrollDown());
+
+//                boolean canPullDown = canChildScrollDown() || (!canChildScrollDown() && !canChildScrollUp());
 
                 //yDiff > mTouchSlop向下移动,这个值只赋值一次,记录child初始位置
-                if (yDiff > mTouchSlop && canPullDown && !mIsBeingDragged && !mLoadFooter.isLoading() && mPullDownEnable) {
+                if (yDiff > mTouchSlop && canChildScrollDown() && !mIsBeingDragged && !mLoadFooter.isLoading() && mPullDownEnable) {
                     mInitialMotionY = mInitialDownY + mTouchSlop;
                     mIsBeingDragged = true;
                 } else if (-yDiff > mTouchSlop && canChildScrollUp() && !mIsBeingDragged && !mRefreshHead.isRefreshing() && mPullUpEnable) {
@@ -386,6 +396,7 @@ public class BasePullLayout
         mNestedScrollingParentHelper.onNestedScrollAccepted(child, target, axes);
         // Dispatch up to the nested parent
         startNestedScroll(axes & ViewCompat.SCROLL_AXIS_VERTICAL);
+
         mNestedScrollInProgress = true;
     }
 
@@ -473,9 +484,9 @@ public class BasePullLayout
     }
 
     private void moveSpinner(float overScroll) {
-        //防止在上拉或者下拉的过程中,往回拉过头的现象
-        boolean canPullDown = canChildScrollDown() || (!canChildScrollDown() && !canChildScrollUp());
-        overScroll = canPullDown ? overScroll < 0 ? 0 : overScroll : overScroll > 0 ? 0 : overScroll;
+        //纠偏overScroll，防止在上拉或者下拉的过程中,回拉过头的现象
+        overScroll = canChildScrollDown() && overScroll < 0 ? 0 :
+                canChildScrollUp() && overScroll > 0 ? 0 : overScroll;
         updateLayout(overScroll);
     }
 
@@ -564,6 +575,7 @@ public class BasePullLayout
                 if (null != callback) callback.onAnimation(fraction);
             }
         };
+        animation.setInterpolator(new AccelerateInterpolator());
         animation.setDuration(duration);
         animation.setAnimationListener(new SimpleAnimationListener() {
             @Override
@@ -589,6 +601,25 @@ public class BasePullLayout
     @Override
     public void pullDownCallback() {
         if (null != mListener) mListener.onRefresh();
+    }
+
+    @Override
+    public void targetScrollBy(int distance) {
+        final View view = mTarget;
+        if (view instanceof RecyclerView)
+            ((RecyclerView) view).smoothScrollBy(0, distance);
+        else if (view instanceof ScrollView)
+            ((ScrollView) view).smoothScrollBy(0, distance);
+        else if (view instanceof AbsListView)
+            ((AbsListView) view).smoothScrollBy(distance, 150);
+        else {
+            try {
+                Method method = view.getClass().getDeclaredMethod("smoothScrollBy", Integer.class, Integer.class);
+                method.invoke(view, 0, distance);
+            } catch (Exception e) {
+                view.scrollBy(0, distance);
+            }
+        }
     }
 
     /**
@@ -634,7 +665,6 @@ public class BasePullLayout
                 mActivePointerId = MotionEventCompat.getPointerId(ev, 0);
                 mIsBeingDragged = false;
                 break;
-
             case MotionEvent.ACTION_MOVE: {
                 pointerIndex = MotionEventCompat.findPointerIndex(ev, mActivePointerId);
                 if (pointerIndex < 0) {
@@ -646,6 +676,7 @@ public class BasePullLayout
                 //刷新或者加载中,防止再次点击屏幕回弹
                 correctInitialMotionY(y);
                 final float overScroll = (y - mInitialMotionY) * DRAG_RATE;
+
                 if (mIsBeingDragged || isShowRefreshing() || isShowLoading()) {
                     moveSpinner(overScroll);
                 }

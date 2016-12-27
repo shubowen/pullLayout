@@ -34,4 +34,10 @@ public interface IPull {
      */
     void pullDownCallback();
 
+    /**
+     * 使中间可滚动组件ScrollBy一段距离
+     *
+     * @param distance
+     */
+    void targetScrollBy(int distance);
 }

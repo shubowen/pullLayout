@@ -33,7 +33,7 @@ public class SimpleLoadFooter implements ILoadFooter {
     private SpinKitView mSpinKit;
     private ImageView mIvArrow;
 
-    private int mHeadViewHeight = -1;
+    private int mFooterHeight = -1;
     private FooterAnimDrawable mAnimDrawable;
     private boolean mHasSprite;
 
@@ -63,9 +63,9 @@ public class SimpleLoadFooter implements ILoadFooter {
 
         if (!enable || mReturningToLoading || isLoading) return;
 
-        if (mHeadViewHeight == -1) {
-            mHeadViewHeight = mFooterView.getHeight();
-            mCriticalDis = (int) (mHeadViewHeight * 1.3f);
+        if (mFooterHeight == -1) {
+            mFooterHeight = mFooterView.getHeight();
+            mCriticalDis = (int) (mFooterHeight * 1.3f);
         }
 
         if (-scrollY > mCriticalDis && !mArrowDown) {
@@ -107,7 +107,7 @@ public class SimpleLoadFooter implements ILoadFooter {
     public void onFingerUp(float scrollY) {
 
         if (isLoading) {
-            iPull.animToRightPosition(-mHeadViewHeight, null);
+            iPull.animToRightPosition(-mFooterHeight, null);
             return;
         }
 
@@ -121,7 +121,7 @@ public class SimpleLoadFooter implements ILoadFooter {
         } else {
             mReturningToLoading = true;
             isLoading = true;
-            iPull.animToRightPosition(-mHeadViewHeight, new AnimationCallback() {
+            iPull.animToRightPosition(-mFooterHeight, new AnimationCallback() {
                 @Override
                 public void onAnimationStart() {
                     showSpinKit();
@@ -149,7 +149,7 @@ public class SimpleLoadFooter implements ILoadFooter {
 
     @Override
     public void finishPull(boolean isBeingDragged, final CharSequence msg, final boolean result) {
-        iPull.animToRightPosition(-mHeadViewHeight, new AnimationCallback() {
+        iPull.animToRightPosition(-mFooterHeight, new AnimationCallback() {
             @Override
             public void onAnimationStart() {
                 mTvTip.setText(msg);
@@ -173,9 +173,15 @@ public class SimpleLoadFooter implements ILoadFooter {
                                 //恢复场景
                                 reset();
                             }
+
+                            @Override
+                            public void onAnimationEnd() {
+                                if (result)
+                                    iPull.targetScrollBy(mFooterHeight);
+                            }
                         });
                     }
-                }, 800);
+                }, 300);
             }
         });
     }
