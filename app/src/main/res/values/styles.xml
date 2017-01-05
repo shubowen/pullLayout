@@ -17,4 +17,10 @@
         <item name="refreshArrowColor">@android:color/holo_red_light</item>
     </style>
 
+    <style name="line_D8">
+        <item name="android:background">@color/color_D8</item>
+        <item name="android:layout_height">0.5dp</item>
+        <item name="android:layout_width">match_parent</item>
+    </style>
+
 </resources>

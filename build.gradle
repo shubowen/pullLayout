@@ -19,6 +19,9 @@ allprojects {
         maven {
             url "http://117.78.40.97:9003/nexus/content/repositories/releases/"
         }
+        maven {
+            url "http://117.78.40.97:9003/nexus/content/repositories/snapshots/"
+        }
     }
 }
 

@@ -15,7 +15,7 @@ import com.xiaosu.pulllayout.R;
 import com.xiaosu.pulllayout.base.AnimationCallback;
 import com.xiaosu.pulllayout.base.IPull;
 import com.xiaosu.pulllayout.base.IRefreshHead;
-import com.xiaosu.pulllayout.drawable.FooterAnimDrawable;
+import com.xiaosu.pulllayout.drawable.ArrowAnimDrawable;
 
 /**
  * 作者：疏博文 创建于 2016-09-13 09:48
@@ -26,7 +26,7 @@ public class SimpleRefreshHead implements IRefreshHead {
 
     private static final String TAG = "SimpleRefreshHead";
 
-    boolean isRefreshing = false;
+    private boolean isRefreshing = false;
 
     private View mHeadView;
     private TextView mTvTip;
@@ -34,7 +34,7 @@ public class SimpleRefreshHead implements IRefreshHead {
     private ImageView mIvArrow;
 
     private int mHeadViewHeight = -1;
-    private FooterAnimDrawable mAnimDrawable;
+    private ArrowAnimDrawable mAnimDrawable;
     private boolean mHasSprite;
 
     private boolean mArrowDown = true;
@@ -56,15 +56,7 @@ public class SimpleRefreshHead implements IRefreshHead {
     @Override
     public void autoRefresh() {
         getDistance();
-        iPull.animToRightPosition(mHeadViewHeight, 0, new AnimationCallback() {
-            @Override
-            public void onAnimationEnd() {
-                isRefreshing = true;
-                showSpinKit();
-                mTvTip.setText(R.string.refreshing);
-                iPull.pullDownCallback();
-            }
-        });
+        iPull.animToRightPosition(mCriticalDis, 300, true);
     }
 
     @Override
@@ -73,7 +65,7 @@ public class SimpleRefreshHead implements IRefreshHead {
             mHeadView = LayoutInflater.from(parent.getContext()).inflate(R.layout.lay_refresh_head, parent, false);
             mIvArrow = (ImageView) mHeadView.findViewById(R.id.iv_arrow);
 
-            mAnimDrawable = new FooterAnimDrawable();
+            mAnimDrawable = new ArrowAnimDrawable();
             mAnimDrawable.arrowDown();
 
             mIvArrow.setImageDrawable(mAnimDrawable);
@@ -125,13 +117,13 @@ public class SimpleRefreshHead implements IRefreshHead {
         if (View.VISIBLE != mIvArrow.getVisibility())
             mIvArrow.setVisibility(View.VISIBLE);
         if (View.VISIBLE == mSpinKit.getVisibility())
-            mSpinKit.setVisibility(View.GONE);
+            mSpinKit.setVisibility(View.INVISIBLE);
     }
 
     private void showSpinKit() {
         initSprite();
         if (View.VISIBLE == mIvArrow.getVisibility())
-            mIvArrow.setVisibility(View.GONE);
+            mIvArrow.setVisibility(View.INVISIBLE);
         if (View.VISIBLE != mSpinKit.getVisibility())
             mSpinKit.setVisibility(View.VISIBLE);
     }
@@ -139,9 +131,21 @@ public class SimpleRefreshHead implements IRefreshHead {
     @Override
     public void onFingerUp(float scrollY) {
 
+        if (mReturningToRefresh) return;
+
         if (isRefreshing) {
             //刷新的情况下直接拉回
-            iPull.animToRightPosition(mHeadViewHeight, null);
+            iPull.animToRightPosition(mHeadViewHeight, new AnimationCallback() {
+                @Override
+                public void onAnimationStart() {
+                    mReturningToRefresh = true;
+                }
+
+                @Override
+                public void onAnimationEnd() {
+                    mReturningToRefresh = false;
+                }
+            });
             return;
         }
 
@@ -153,11 +157,11 @@ public class SimpleRefreshHead implements IRefreshHead {
                 }
             });
         } else {
-            mReturningToRefresh = true;
             isRefreshing = true;
             iPull.animToRightPosition(mHeadViewHeight, new AnimationCallback() {
                 @Override
                 public void onAnimationStart() {
+                    mReturningToRefresh = true;
                     showSpinKit();
                     mTvTip.setText(R.string.refreshing);
                 }
@@ -183,41 +187,38 @@ public class SimpleRefreshHead implements IRefreshHead {
 
     @Override
     public void finishPull(boolean isBeingDragged, final CharSequence msg, final boolean result) {
-        iPull.animToRightPosition(mHeadViewHeight, new AnimationCallback() {
+        showResult(msg, result);
+        mHeadView.postDelayed(new Runnable() {
             @Override
-            public void onAnimationStart() {
-                mTvTip.setText(msg);
-                if (result) {
-                    mIvArrow.setImageResource(R.drawable.succeed_vector);
-                } else {
-                    mIvArrow.setImageResource(R.drawable.failed_vector);
-                    mTvTip.setTextColor(mTvTip.getContext().getResources().getColor(R.color.failed));
-                }
-                showArrow();
-            }
-
-            @Override
-            public void onAnimationEnd() {
-                mHeadView.postDelayed(new Runnable() {
+            public void run() {
+                iPull.animToStartPosition(new AnimationCallback() {
                     @Override
-                    public void run() {
-                        iPull.animToStartPosition(new AnimationCallback() {
-                            @Override
-                            public void onAnimationStart() {
-                                //恢复场景
-                                reset();
-                            }
-                        });
+                    public void onAnimationEnd() {
+                        //恢复场景
+                        reset();
                     }
-                }, 300);
+                });
             }
-        });
+        }, 300);
+    }
+
+    private void showResult(CharSequence msg, boolean result) {
+        mTvTip.setText(msg);
+        if (result) {
+            mIvArrow.setImageResource(R.drawable.succeed_vector);
+        } else {
+            mIvArrow.setImageResource(R.drawable.failed_vector);
+            mTvTip.setTextColor(mTvTip.getContext().getResources().getColor(R.color.failed));
+        }
+        showArrow();
     }
 
     private void reset() {
         isRefreshing = false;
+        mReturningToRefresh = false;
         mIvArrow.setImageDrawable(mAnimDrawable);
         mTvTip.setText(R.string.pull_refresh);
+        mAnimDrawable.arrowDown();
         mTvTip.setTextColor(mTvTip.getContext().getResources().getColor(R.color.text_color));
     }
 }

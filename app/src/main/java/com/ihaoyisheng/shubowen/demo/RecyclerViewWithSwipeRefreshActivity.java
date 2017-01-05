@@ -4,12 +4,9 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.xiaosu.pulllayout.SimplePullLayout;
 import com.xiaosu.pulllayout.base.BasePullLayout;
 
 import butterknife.Bind;
@@ -20,59 +17,26 @@ import butterknife.ButterKnife;
  * 邮箱：shubowen123@sina.cn
  * 描述：
  */
-public class RecyclerViewActivity extends BaseActivity {
+public class RecyclerViewWithSwipeRefreshActivity extends BaseActivity {
 
     @Bind(R.id.recyclerView)
     RecyclerView recyclerView;
-    @Bind(R.id.pull_layout)
-    SimplePullLayout mPullLayout;
 
     private InnerAdapter mAdapter;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.lay_recycler_list);
+        setContentView(R.layout.activity_recycler_with_swipe_refresh);
         ButterKnife.bind(this);
 
         mAdapter = new InnerAdapter();
         recyclerView.setAdapter(mAdapter);
-        mPullLayout.setOnPullListener(this);
-
-        mPullLayout.postRefresh();
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.options, menu);
-        return super.onCreateOptionsMenu(menu);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.menu_pull_down_enable:
-                mPullLayout.setPullDownEnable(!mPullLayout.isPullDownEnable());
-                if (mPullLayout.isPullDownEnable())
-                    item.setTitle("禁止下拉");
-                else
-                    item.setTitle("开启下拉");
-                return true;
-            case R.id.menu_pull_up_enable:
-                mPullLayout.setPullUpEnable(!mPullLayout.isPullUpEnable());
-                if (mPullLayout.isPullUpEnable())
-                    item.setTitle("禁止上拉");
-                else
-                    item.setTitle("开启上拉");
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
     }
 
     @Override
     protected BasePullLayout pullLayout() {
-        return mPullLayout;
+        return null;
     }
 
     @Override
@@ -104,7 +68,7 @@ public class RecyclerViewActivity extends BaseActivity {
         @Bind(android.R.id.text1)
         TextView text1;
 
-        TextViewHolder(ViewGroup parent) {
+        public TextViewHolder(ViewGroup parent) {
             super(LayoutInflater.from(parent.getContext()).inflate(android.R.layout.simple_list_item_1, parent, false));
             itemView.setBackgroundColor(Color.WHITE);
             ButterKnife.bind(this, itemView);

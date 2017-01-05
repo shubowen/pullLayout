@@ -9,7 +9,7 @@ android {
         minSdkVersion 14
         targetSdkVersion 23
         versionCode 2
-        versionName "1.1"
+        versionName "2.1.0"
     }
 }
 def support_library_version = "23.3.0"
@@ -24,7 +24,7 @@ publish {
     userOrg = 'xiaosu'
     groupId = 'com.xiaosu'
     artifactId = 'pullLayout'
-    publishVersion = '2.0.1'
+    publishVersion = '2.1.8'
     desc = '这是android上拉刷新和下拉加载的库'
     website = 'https://github.com/shubowen/pullLayout'
 }

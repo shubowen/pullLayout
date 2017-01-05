@@ -15,7 +15,7 @@ import com.xiaosu.pulllayout.R;
 import com.xiaosu.pulllayout.base.AnimationCallback;
 import com.xiaosu.pulllayout.base.ILoadFooter;
 import com.xiaosu.pulllayout.base.IPull;
-import com.xiaosu.pulllayout.drawable.FooterAnimDrawable;
+import com.xiaosu.pulllayout.drawable.ArrowAnimDrawable;
 
 /**
  * 作者：疏博文 创建于 2016-09-13 09:48
@@ -34,7 +34,7 @@ public class SimpleLoadFooter implements ILoadFooter {
     private ImageView mIvArrow;
 
     private int mFooterHeight = -1;
-    private FooterAnimDrawable mAnimDrawable;
+    private ArrowAnimDrawable mAnimDrawable;
     private boolean mHasSprite;
 
     private boolean mArrowDown = false;
@@ -49,7 +49,7 @@ public class SimpleLoadFooter implements ILoadFooter {
             mFooterView = LayoutInflater.from(parent.getContext()).inflate(R.layout.lay_refresh_head, parent, false);
             mIvArrow = (ImageView) mFooterView.findViewById(R.id.iv_arrow);
 
-            mAnimDrawable = new FooterAnimDrawable();
+            mAnimDrawable = new ArrowAnimDrawable();
 
             mIvArrow.setImageDrawable(mAnimDrawable);
             mSpinKit = (SpinKitView) mFooterView.findViewById(R.id.spin_kit);
@@ -149,47 +149,39 @@ public class SimpleLoadFooter implements ILoadFooter {
 
     @Override
     public void finishPull(boolean isBeingDragged, final CharSequence msg, final boolean result) {
-        iPull.animToRightPosition(-mFooterHeight, new AnimationCallback() {
+        showResult(msg, result);
+        mFooterView.postDelayed(new Runnable() {
             @Override
-            public void onAnimationStart() {
-                mTvTip.setText(msg);
-                if (result) {
-                    mIvArrow.setImageResource(R.drawable.succeed_vector);
-                } else {
-                    mIvArrow.setImageResource(R.drawable.failed_vector);
-                    mTvTip.setTextColor(mTvTip.getContext().getResources().getColor(R.color.failed));
-                }
-                showArrow();
-            }
-
-            @Override
-            public void onAnimationEnd() {
-                mFooterView.postDelayed(new Runnable() {
+            public void run() {
+                iPull.animToStartPosition(new AnimationCallback() {
                     @Override
-                    public void run() {
-                        iPull.animToStartPosition(new AnimationCallback() {
-                            @Override
-                            public void onAnimationStart() {
-                                //恢复场景
-                                reset();
-                            }
-
-                            @Override
-                            public void onAnimationEnd() {
-                                if (result)
-                                    iPull.targetScrollBy(mFooterHeight);
-                            }
-                        });
+                    public void onAnimationEnd() {
+                        //恢复场景
+                        reset();
+                        if (result)
+                            iPull.targetScrollBy(mFooterHeight);
                     }
-                }, 300);
+                });
             }
-        });
+        }, 300);
+    }
+
+    private void showResult(CharSequence msg, boolean result) {
+        mTvTip.setText(msg);
+        if (result) {
+            mIvArrow.setImageResource(R.drawable.succeed_vector);
+        } else {
+            mIvArrow.setImageResource(R.drawable.failed_vector);
+            mTvTip.setTextColor(mTvTip.getContext().getResources().getColor(R.color.failed));
+        }
+        showArrow();
     }
 
     private void reset() {
         isLoading = false;
         mIvArrow.setImageDrawable(mAnimDrawable);
         mTvTip.setText(R.string.pull_refresh);
+        mAnimDrawable.arrowUp();
         mTvTip.setTextColor(mTvTip.getContext().getResources().getColor(R.color.text_color));
     }
 

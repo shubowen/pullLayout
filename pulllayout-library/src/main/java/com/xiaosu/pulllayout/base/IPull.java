@@ -12,11 +12,21 @@ public interface IPull {
      */
     void animToStartPosition(AnimationCallback callback);
 
+
     /**
      * @param targetY  偏移量
+     * @param duration 动画时间
+     * @param auto     是否代码调用
      * @param callback 动画执行的回调
      */
-    void animToRightPosition(final float targetY, long duration, AnimationCallback callback);
+    void animToRightPosition(final float targetY, long duration, boolean auto, AnimationCallback callback);
+
+    /**
+     * @param targetY  偏移量
+     * @param duration 动画时间
+     * @param auto     是否代码调用
+     */
+    void animToRightPosition(final float targetY, long duration, boolean auto);
 
     /**
      * @param targetY  偏移量
