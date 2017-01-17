@@ -20,14 +20,20 @@ android {
     }
 }
 
-def support_library_version = "23.3.0"
+def support_library_version = "25.0.1"
+
+configurations.all {
+    resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
+}
 
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     compile "com.android.support:appcompat-v7:${support_library_version}"
     compile "com.android.support:support-v4:${support_library_version}"
-    compile "com.android.support:recyclerview-v7:${support_library_version}"
+    // compile "com.android.support:recyclerview-v7:${support_library_version}"
     compile 'com.jakewharton:butterknife:7.0.1'
     compile 'com.xiaosu.lib:widget:1.1.6-SNAPSHOT'
+    // compile 'com.xiaosu.lib:recyclerview-v7-25.0.1:1.0.0-SNAPSHOT'
     compile project(':pulllayout-library')
+    compile project(':recyclerview')
 }

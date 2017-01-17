@@ -43,13 +43,14 @@ public interface IView {
      */
     void pullLayout(IPull iPull);
 
+    int throttleDistance();
+
     /**
      * 拉回
      *
-     * @param isBeingDragged true表示手指还在拖动状态
-     * @param msg            提示消息
-     * @param result         是否成功
+     * @param msg    提示消息
+     * @param result 是否成功
      */
-    void finishPull(boolean isBeingDragged, CharSequence msg, boolean result);
+    void finishPull(CharSequence msg, boolean result);
 
 }

@@ -26,7 +26,7 @@ public class SimpleLoadFooter implements ILoadFooter {
 
     private static final String TAG = "SimpleRefreshHead";
 
-    boolean isLoading = false;
+    private boolean isLoading = false;
 
     private View mFooterView;
     private TextView mTvTip;
@@ -42,6 +42,7 @@ public class SimpleLoadFooter implements ILoadFooter {
     private boolean mReturningToLoading;
     /*临界距离*/
     private int mCriticalDis;
+    private boolean mReturnToReset;
 
     @Override
     public View getTargetView(ViewGroup parent) {
@@ -61,7 +62,7 @@ public class SimpleLoadFooter implements ILoadFooter {
     @Override
     public void onPull(float scrollY, boolean enable) {
 
-        if (!enable || mReturningToLoading || isLoading) return;
+        if (!enable || mReturningToLoading || isLoading || mReturnToReset) return;
 
         if (mFooterHeight == -1) {
             mFooterHeight = mFooterView.getHeight();
@@ -106,10 +107,7 @@ public class SimpleLoadFooter implements ILoadFooter {
     @Override
     public void onFingerUp(float scrollY) {
 
-        if (isLoading) {
-            iPull.animToRightPosition(-mFooterHeight, null);
-            return;
-        }
+        if (mReturningToLoading || isLoading || mReturnToReset) return;
 
         if (!mArrowDown) {//回到原位
             iPull.animToStartPosition(new AnimationCallback() {
@@ -148,7 +146,13 @@ public class SimpleLoadFooter implements ILoadFooter {
     }
 
     @Override
-    public void finishPull(boolean isBeingDragged, final CharSequence msg, final boolean result) {
+    public int throttleDistance() {
+        return mCriticalDis;
+    }
+
+    @Override
+    public void finishPull(final CharSequence msg, final boolean result) {
+        mReturnToReset = true;
         showResult(msg, result);
         mFooterView.postDelayed(new Runnable() {
             @Override
@@ -178,6 +182,7 @@ public class SimpleLoadFooter implements ILoadFooter {
     }
 
     private void reset() {
+        mReturnToReset = false;
         isLoading = false;
         mIvArrow.setImageDrawable(mAnimDrawable);
         mTvTip.setText(R.string.pull_refresh);

@@ -42,6 +42,8 @@ public class SimpleRefreshHead implements IRefreshHead {
     private boolean mReturningToRefresh;
     /*临界距离*/
     private int mCriticalDis;
+    private boolean mReturnToReset;
+    private boolean mReturningToStart;
 
     @Override
     public boolean isRefreshing() {
@@ -55,6 +57,8 @@ public class SimpleRefreshHead implements IRefreshHead {
 
     @Override
     public void autoRefresh() {
+        if (mReturningToRefresh || mReturningToStart || mReturnToReset || isRefreshing)
+            return;
         getDistance();
         iPull.animToRightPosition(mCriticalDis, 300, true);
     }
@@ -78,7 +82,8 @@ public class SimpleRefreshHead implements IRefreshHead {
     @Override
     public void onPull(float scrollY, boolean enable) {
 
-        if (!enable || mReturningToRefresh || isRefreshing) return;
+        if (!enable || mReturningToRefresh || mReturningToStart || mReturnToReset || isRefreshing)
+            return;
 
         getDistance();
 
@@ -131,28 +136,20 @@ public class SimpleRefreshHead implements IRefreshHead {
     @Override
     public void onFingerUp(float scrollY) {
 
-        if (mReturningToRefresh) return;
-
-        if (isRefreshing) {
-            //刷新的情况下直接拉回
-            iPull.animToRightPosition(mHeadViewHeight, new AnimationCallback() {
-                @Override
-                public void onAnimationStart() {
-                    mReturningToRefresh = true;
-                }
-
-                @Override
-                public void onAnimationEnd() {
-                    mReturningToRefresh = false;
-                }
-            });
+        if (mReturningToRefresh || mReturningToStart || mReturnToReset || isRefreshing)
             return;
-        }
+
 
         if (mArrowDown) {//回到原位
             iPull.animToStartPosition(new AnimationCallback() {
                 @Override
+                public void onAnimationStart() {
+                    mReturningToStart = true;
+                }
+
+                @Override
                 public void onAnimationEnd() {
+                    mReturningToStart = false;
                     showArrow();
                 }
             });
@@ -186,8 +183,14 @@ public class SimpleRefreshHead implements IRefreshHead {
     }
 
     @Override
-    public void finishPull(boolean isBeingDragged, final CharSequence msg, final boolean result) {
+    public int throttleDistance() {
+        return mCriticalDis;
+    }
+
+    @Override
+    public void finishPull(final CharSequence msg, final boolean result) {
         showResult(msg, result);
+        mReturnToReset = true;
         mHeadView.postDelayed(new Runnable() {
             @Override
             public void run() {
@@ -215,7 +218,7 @@ public class SimpleRefreshHead implements IRefreshHead {
 
     private void reset() {
         isRefreshing = false;
-        mReturningToRefresh = false;
+        mReturnToReset = false;
         mIvArrow.setImageDrawable(mAnimDrawable);
         mTvTip.setText(R.string.pull_refresh);
         mAnimDrawable.arrowDown();

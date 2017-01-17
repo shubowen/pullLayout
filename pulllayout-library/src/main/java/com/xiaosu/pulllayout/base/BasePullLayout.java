@@ -8,6 +8,7 @@ import android.support.v4.view.NestedScrollingChildHelper;
 import android.support.v4.view.NestedScrollingParent;
 import android.support.v4.view.NestedScrollingParentHelper;
 import android.support.v4.view.ViewCompat;
+import android.support.v4.widget.ScrollerCompat;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -17,6 +18,7 @@ import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.Animation;
+import android.view.animation.Interpolator;
 import android.view.animation.Transformation;
 import android.widget.AbsListView;
 import android.widget.ScrollView;
@@ -24,6 +26,8 @@ import android.widget.ScrollView;
 import com.xiaosu.pulllayout.R;
 
 import java.lang.reflect.Method;
+
+import static android.R.attr.height;
 
 public class BasePullLayout
         extends ViewGroup implements
@@ -36,14 +40,13 @@ public class BasePullLayout
     private final int[] mParentScrollConsumed = new int[2];
 
     private static final int INVALID_POINTER = -1;
-    private static final float DRAG_RATE = .5f;
+    private static final float DRAG_RATE = .8f;
 
     private static final String TAG = "Mr.su";
 
     private View mTarget; // the target of the gesture
 
     private OnPullCallBackListener mListener;
-    private int mTouchSlop;
 
     private final NestedScrollingParentHelper mNestedScrollingParentHelper;
     private final NestedScrollingChildHelper mNestedScrollingChildHelper;
@@ -51,10 +54,6 @@ public class BasePullLayout
     private final int[] mParentOffsetInWindow = new int[2];
 
     private boolean mNestedScrollInProgress;
-
-    private float mInitialMotionY;
-    private float mInitialDownY;
-    private boolean mIsBeingDragged;
 
     private int mActivePointerId = INVALID_POINTER;
 
@@ -90,6 +89,7 @@ public class BasePullLayout
 
     //标记拉动的方向
     private boolean mDragStateFlag = false;
+    private int mInitialScrollY;
 
     @Override
     protected void onDetachedFromWindow() {
@@ -108,7 +108,6 @@ public class BasePullLayout
 
     public BasePullLayout(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        mTouchSlop = ViewConfiguration.get(context).getScaledTouchSlop();
         setWillNotDraw(false);
 
         ViewCompat.setChildrenDrawingOrderEnabled(this, true);
@@ -122,6 +121,13 @@ public class BasePullLayout
         mPullUpEnable = array.getBoolean(R.styleable.PullLayout_enable_pullUpEnable, true);
         array.recycle();
     }
+
+    private static final Interpolator sQuinticInterpolator = new Interpolator() {
+        public float getInterpolation(float t) {
+            t -= 1.0f;
+            return t * t * t * t * t + 1.0f;
+        }
+    };
 
     public void attachHeadView(IRefreshHead head) {
         if (null == head || null == head.getTargetView(this)) {
@@ -285,82 +291,6 @@ public class BasePullLayout
         }
     }
 
-
-    @Override
-    public boolean isEnabled() {
-        return mPullDownEnable || mPullUpEnable;
-    }
-
-    @Override
-    public boolean onInterceptTouchEvent(MotionEvent ev) {
-        ensureTarget();
-
-        final int action = MotionEventCompat.getActionMasked(ev);
-
-//        if (mReturningToStart && action == MotionEvent.ACTION_DOWN) {
-//            mReturningToStart = false;
-//        }
-
-        if (!isEnabled() || mReturningToStart || canNestScroll()
-                || mNestedScrollInProgress || mRefreshHead.isRefreshing() || mLoadFooter.isLoading()) {
-            return false;
-        }
-
-        switch (action) {
-            case MotionEvent.ACTION_DOWN:
-                mActivePointerId = MotionEventCompat.getPointerId(ev, 0);
-                mIsBeingDragged = false;
-                final float initialDownY = getMotionEventY(ev, mActivePointerId);
-                if (initialDownY == -1) {
-                    return false;
-                }
-                mInitialDownY = initialDownY;
-                break;
-
-            case MotionEvent.ACTION_MOVE:
-                if (mActivePointerId == INVALID_POINTER) {
-                    Log.e(LOG_TAG, "Got ACTION_MOVE event but don't have an active pointer id.");
-                    return false;
-                }
-
-                final float y = getMotionEventY(ev, mActivePointerId);
-                if (y == -1) {
-                    return false;
-                }
-                final float yDiff = y - mInitialDownY;
-
-                boolean canPullDown = canChildScrollDown() || (!canChildScrollDown() && !canChildScrollUp());
-                boolean canPullUp = canChildScrollUp() || (!canChildScrollDown() && !canChildScrollUp());
-
-                //yDiff > mTouchSlop向下移动,这个值只赋值一次,记录child初始位置
-                if (yDiff > mTouchSlop && canPullDown && !mIsBeingDragged && !mLoadFooter.isLoading() && mPullDownEnable) {
-                    Log.i(TAG, "onInterceptTouchEvent1: ");
-                    mInitialMotionY = mInitialDownY + mTouchSlop;
-                    mIsBeingDragged = true;
-                    updateDragStateInner(STATE_PULL_DOWN);
-                } else if (-yDiff > mTouchSlop && canPullUp && !mIsBeingDragged && !mRefreshHead.isRefreshing() && mPullUpEnable) {
-                    Log.i(TAG, "onInterceptTouchEvent2: ");
-                    //-yDiff > mTouchSlop向上移动,这个值只赋值一次,记录child初始位置
-                    mInitialMotionY = mInitialDownY - mTouchSlop;
-                    mIsBeingDragged = true;
-                    updateDragStateInner(STATE_PULL_UP);
-                }
-                break;
-
-            case MotionEventCompat.ACTION_POINTER_UP:
-                onSecondaryPointerUp(ev);
-                break;
-
-            case MotionEvent.ACTION_UP:
-            case MotionEvent.ACTION_CANCEL:
-                mIsBeingDragged = false;
-                mActivePointerId = INVALID_POINTER;
-                break;
-        }
-
-        return false;
-    }
-
     /**
      * 更新拖动的状态
      *
@@ -380,14 +310,6 @@ public class BasePullLayout
 
     private boolean canNestScroll() {
         return canChildScrollDown() && canChildScrollUp();
-    }
-
-    private float getMotionEventY(MotionEvent ev, int activePointerId) {
-        final int index = MotionEventCompat.findPointerIndex(ev, activePointerId);
-        if (index < 0) {
-            return -1;
-        }
-        return MotionEventCompat.getY(ev, index);
     }
 
     @Override
@@ -423,7 +345,6 @@ public class BasePullLayout
 
     @Override
     public void onNestedPreScroll(View target, int dx, int dy, int[] consumed) {
-
         int rScrollY = getRScrollY();
         if (dy > 0 && rScrollY > 0 && !mLoadFooter.isLoading()) {
             if (dy > rScrollY) {
@@ -466,14 +387,14 @@ public class BasePullLayout
     @Override
     public void onStopNestedScroll(View target) {
         mNestedScrollingParentHelper.onStopNestedScroll(target);
-        mNestedScrollInProgress = false;
 
         int rScrollY = getRScrollY();
-        if (rScrollY != 0) {
+        if (rScrollY != 0 && mNestedScrollInProgress) {
             finishSpinner(rScrollY);
         }
         stopNestedScroll();
         mDragStateFlag = false;
+        mNestedScrollInProgress = false;
     }
 
     @Override
@@ -481,7 +402,6 @@ public class BasePullLayout
                                final int dxUnconsumed, final int dyUnconsumed) {
         dispatchNestedScroll(dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed,
                 mParentOffsetInWindow);
-
 
         final int dy = dyUnconsumed + mParentOffsetInWindow[1];
 
@@ -544,6 +464,7 @@ public class BasePullLayout
     @Override
     public boolean onNestedFling(View target, float velocityX, float velocityY,
                                  boolean consumed) {
+        // TODO: 17/1/12 处理Fling数据
         return dispatchNestedFling(velocityX, velocityY, consumed);
     }
 
@@ -566,18 +487,28 @@ public class BasePullLayout
                 y = y > 0 || !mPullUpEnable ? 0 : y;
                 break;
         }
+
         scrollTo(0, -y);
     }
 
     protected void scrollVerticalBy(int dy) {
         int wScrollY = getRScrollY() - dy;
+        /*限制下拉和下拉同时出现*/
         switch (mState) {
             case STATE_PULL_DOWN:
-                dy = wScrollY < 0 || !mPullDownEnable ? 0 : dy;
+                dy = wScrollY < 0 || !mPullDownEnable ? getRScrollY() : dy;
                 break;
             case STATE_PULL_UP:
-                dy = wScrollY > 0 || !mPullUpEnable ? 0 : dy;
+                dy = wScrollY > 0 || !mPullUpEnable ? getRScrollY() : dy;
                 break;
+        }
+        /*在加载的过程中，限制拉动的距离*/
+        if (mRefreshHead.isRefreshing()) {
+            int distance = mRefreshHead.throttleDistance();
+            dy = wScrollY > distance ? getRScrollY() - distance : dy;
+        } else if (mLoadFooter.isLoading()) {
+            int distance = mLoadFooter.throttleDistance();
+            dy = -wScrollY > distance ? getRScrollY() + distance : dy;
         }
         scrollBy(0, dy);
     }
@@ -625,16 +556,19 @@ public class BasePullLayout
                 if (null != callback) callback.onAnimation(fraction);
             }
         };
-        animation.setDuration(300);
+        animation.setDuration(180);
+        animation.setInterpolator(new AccelerateInterpolator());
         animation.setAnimationListener(new SimpleAnimationListener() {
             @Override
             public void onAnimationStart(Animation animation) {
+                Log.i(TAG, "animToStartPosition-onAnimationStart: ");
                 mReturningToStart = true;
                 if (null != callback) callback.onAnimationStart();
             }
 
             @Override
             public void onAnimationEnd(Animation animation) {
+                Log.i(TAG, "-------animToStartPosition-onAnimationEnd---------: ");
                 mReturningToStart = false;
                 if (null != callback) callback.onAnimationEnd();
             }
@@ -757,95 +691,15 @@ public class BasePullLayout
         });
     }
 
-    @Override
-    public boolean onTouchEvent(MotionEvent ev) {
-        final int action = MotionEventCompat.getActionMasked(ev);
-        int pointerIndex = -1;
-
-//        if (mReturningToStart && action == MotionEvent.ACTION_DOWN) {
-//            mReturningToStart = false;
-//        }
-
-        if (!isEnabled() || mReturningToStart || canNestScroll() || mNestedScrollInProgress) {
-            // Fail fast if we're not in a state where a swipe is possible
-            return false;
-        }
-
-        switch (action) {
-            case MotionEvent.ACTION_DOWN:
-                mActivePointerId = MotionEventCompat.getPointerId(ev, 0);
-                mIsBeingDragged = false;
-                break;
-            case MotionEvent.ACTION_MOVE: {
-                pointerIndex = MotionEventCompat.findPointerIndex(ev, mActivePointerId);
-                if (pointerIndex < 0) {
-                    Log.e(LOG_TAG, "Got ACTION_MOVE event but have an invalid active pointer id.");
-                    return false;
-                }
-
-                final float y = MotionEventCompat.getY(ev, pointerIndex);
-                //刷新或者加载中,防止再次点击屏幕回弹
-                final float overScroll = (y - mInitialMotionY) * DRAG_RATE;
-                Log.i(TAG, "onTouchEvent: " + overScroll);
-                if (mIsBeingDragged || isShowRefreshing() || isShowLoading()) {
-//                    moveSpinner(makeVerticalOverScrollDistance(overScroll));
-                }
-                break;
-            }
-            case MotionEventCompat.ACTION_POINTER_DOWN: {
-                pointerIndex = MotionEventCompat.getActionIndex(ev);
-                if (pointerIndex < 0) {
-                    Log.e(LOG_TAG, "Got ACTION_POINTER_DOWN event but have an invalid action index.");
-                    return false;
-                }
-                mActivePointerId = MotionEventCompat.getPointerId(ev, pointerIndex);
-                break;
-            }
-
-            case MotionEventCompat.ACTION_POINTER_UP:
-                onSecondaryPointerUp(ev);
-                break;
-
-            case MotionEvent.ACTION_UP: {
-                pointerIndex = MotionEventCompat.findPointerIndex(ev, mActivePointerId);
-                if (pointerIndex < 0) {
-                    Log.e(LOG_TAG, "Got ACTION_UP event but don't have an active pointer id.");
-                    return false;
-                }
-
-                mIsBeingDragged = false;
-                //松开手指
-//                finishSpinner(mScrollY);
-                mActivePointerId = INVALID_POINTER;
-                return false;
-            }
-            case MotionEvent.ACTION_CANCEL:
-                return false;
-        }
-
-        return false;
-    }
-
-    private void onSecondaryPointerUp(MotionEvent ev) {
-        final int pointerIndex = MotionEventCompat.getActionIndex(ev);
-        final int pointerId = MotionEventCompat.getPointerId(ev, pointerIndex);
-        if (pointerId == mActivePointerId) {
-            // This was our active pointer going up. Choose a new
-            // active pointer and adjust accordingly.
-            final int newPointerIndex = pointerIndex == 0 ? 1 : 0;
-            mActivePointerId = MotionEventCompat.getPointerId(ev, newPointerIndex);
-        }
-    }
-
     /**
      * 成功
      */
     public void succeed() {
         if (mRefreshHead.isRefreshing()) {
-            mRefreshHead.finishPull(mIsBeingDragged, getContext().getString(R.string.refresh_succeed), true);
+            mRefreshHead.finishPull(getContext().getString(R.string.refresh_succeed), true);
         }
         if (mLoadFooter.isLoading()) {
-            mLoadFooter.finishPull(mIsBeingDragged, getContext().getString(R.string.load_succeed), true);
+            mLoadFooter.finishPull(getContext().getString(R.string.load_succeed), true);
         }
     }
 
@@ -854,10 +708,10 @@ public class BasePullLayout
      */
     public void failed() {
         if (mRefreshHead.isRefreshing()) {
-            mRefreshHead.finishPull(mIsBeingDragged, getContext().getString(R.string.refresh_failed), false);
+            mRefreshHead.finishPull(getContext().getString(R.string.refresh_failed), false);
         }
         if (mLoadFooter.isLoading()) {
-            mLoadFooter.finishPull(mIsBeingDragged, getContext().getString(R.string.load_failed), false);
+            mLoadFooter.finishPull(getContext().getString(R.string.load_failed), false);
         }
     }
 
@@ -866,10 +720,10 @@ public class BasePullLayout
      */
     public void finishPull(CharSequence msg, boolean result) {
         if (mRefreshHead.isRefreshing()) {
-            mRefreshHead.finishPull(mIsBeingDragged, msg, result);
+            mRefreshHead.finishPull(msg, result);
         }
         if (mLoadFooter.isLoading()) {
-            mLoadFooter.finishPull(mIsBeingDragged, msg, result);
+            mLoadFooter.finishPull(msg, result);
         }
     }
 
