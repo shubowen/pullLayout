@@ -40,7 +40,7 @@ public class BasePullLayout
     private final int[] mParentScrollConsumed = new int[2];
 
     private static final int INVALID_POINTER = -1;
-    private static final float DRAG_RATE = .8f;
+    private static final float DRAG_RATE = .6f;
 
     private static final String TAG = "Mr.su";
 

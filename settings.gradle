@@ -1,5 +1,1 @@
 include ':app', ':pulllayout-library'
-def recyclerViewModule = ":recyclerview"
-include recyclerViewModule
-
-project(recyclerViewModule).setProjectDir(new File("../", "widget-demo/recyclerview"))

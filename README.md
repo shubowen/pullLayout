@@ -1,14 +1,25 @@
 # pullLayout
-一个Android下拉刷新和上拉加载的库,**仿IOS版QQ消息页面水滴下拉刷新效果**
+一个Android下拉刷新和上拉加载的库
 
 基于官方**SwipeRefreshLayout**修改,并添加上拉功能,可自定义头部和尾部
 
-**目前只支持RecyclerView(LinearLayoutManager-VERTICAL模式)和ListView**
+**目前只支持RecyclerView(LinearLayoutManager-VERTICAL模式)**
 
 ![image](https://github.com/shubowen/pullLayout/blob/master/app/image.gif)
 
 **使用方法**:
-    
+
+项目根目录的build.gradle添加
+
+    allprojects {
+        repositories {
+            jcenter()
+            maven {
+                url "http://117.78.40.97:9003/nexus/content/repositories/releases/"
+            }
+        }
+    }
+
 在项目build.gradle 文件中添加依赖:
     
     compile 'com.xiaosu:pullLayout:3.0.3'
@@ -52,32 +63,13 @@
 
 **该方法会回调onRefresh()方法**
 
-**自定义水滴和箭头的颜色**:
-    
-1.在style文件中申明一个主题:
-    
-    <style name="pull_style">
-            <!--头部水滴颜色-->
-            <item name="waterDropColor">@color/colorAccent</item>
-            <!--尾部指示箭头颜色-->
-            <item name="indicatorArrowColor">@color/colorAccent</item>
-            <!--loading小控件开始颜色-->
-            <item name="loadStartColor">#FFFFFFFF</item>
-            <!--loading小控件结束颜色-->
-            <item name="loadEndColor">@color/colorAccent</item>
-            <!--尾部文字颜色-->
-            <item name="android:textColor">@color/colorAccent</item>
-            <!--头部箭头颜色-->
-            <item name="refreshArrowColor">@android:color/holo_red_light</item>
-    </style>
-
-2.布局中使用
+1.布局中使用
     
     <com.xiaosu.pulllayout.SimplePullLayout
              android:layout_width="match_parent"
              android:layout_height="match_parent">
 
-3.禁止下拉(默认开启):app:pullDownEnable="false"或者代码setPullDownEnable(false)
+2.禁止下拉(默认开启):app:pullDownEnable="false"或者代码setPullDownEnable(false)
     
     <com.xiaosu.pulllayout.PullLayout
             android:id="@+id/pull_layout"
@@ -85,7 +77,7 @@
             android:layout_height="match_parent"
             app:pullDownEnable="false">
 
-4.禁止上拉(默认开启):app:pullUpEnable="false"或者代码setPullUpEnable(false)
+3.禁止上拉(默认开启):app:pullUpEnable="false"或者代码setPullUpEnable(false)
 
     <com.xiaosu.pulllayout.PullLayout
             android:id="@+id/pull_layout"
