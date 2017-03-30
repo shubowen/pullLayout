@@ -22,7 +22,7 @@
 
 在项目build.gradle 文件中添加依赖:
     
-    compile 'com.xiaosu:pullLayout:3.0.3'
+    compile 'com.xiaosu:pullLayout:3.0.4'
     
 布局文件中使用:
     
