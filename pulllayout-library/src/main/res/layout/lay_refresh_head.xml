@@ -6,17 +6,23 @@
     android:gravity="center"
     android:orientation="horizontal">
 
-    <ImageView
-        android:id="@+id/iv_arrow"
+    <FrameLayout
         android:layout_width="20dp"
-        android:layout_height="20dp"/>
+        android:layout_height="20dp">
 
-    <com.github.ybq.android.spinkit.SpinKitView
-        android:id="@+id/spin_kit"
-        style="@style/spinKit_style"
-        android:layout_width="20dp"
-        android:layout_height="20dp"
-        android:visibility="invisible"/>
+        <ImageView
+            android:id="@+id/iv_arrow"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+
+        <com.github.ybq.android.spinkit.SpinKitView
+            android:id="@+id/spin_kit"
+            style="@style/spinKit_style"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="invisible"/>
+
+    </FrameLayout>
 
     <TextView
         android:id="@+id/tv_tip"

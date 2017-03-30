@@ -123,6 +123,8 @@ public class SimpleRefreshHead implements IRefreshHead {
             mIvArrow.setVisibility(View.VISIBLE);
         if (View.VISIBLE == mSpinKit.getVisibility())
             mSpinKit.setVisibility(View.INVISIBLE);
+
+        mSpinKit.stop();
     }
 
     private void showSpinKit() {
@@ -131,6 +133,8 @@ public class SimpleRefreshHead implements IRefreshHead {
             mIvArrow.setVisibility(View.INVISIBLE);
         if (View.VISIBLE != mSpinKit.getVisibility())
             mSpinKit.setVisibility(View.VISIBLE);
+
+        mSpinKit.start();
     }
 
     @Override

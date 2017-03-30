@@ -95,6 +95,8 @@ public class SimpleLoadFooter implements ILoadFooter {
             mIvArrow.setVisibility(View.VISIBLE);
         if (View.VISIBLE == mSpinKit.getVisibility())
             mSpinKit.setVisibility(View.GONE);
+
+        mSpinKit.stop();
     }
 
     private void showSpinKit() {
@@ -102,6 +104,8 @@ public class SimpleLoadFooter implements ILoadFooter {
             mIvArrow.setVisibility(View.GONE);
         if (View.VISIBLE != mSpinKit.getVisibility())
             mSpinKit.setVisibility(View.VISIBLE);
+
+        mSpinKit.start();
     }
 
     @Override
