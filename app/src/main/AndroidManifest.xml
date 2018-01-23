@@ -10,7 +10,7 @@
         android:theme="@style/AppTheme">
 
         <activity
-            android:name=".RecyclerViewActivity"
+            android:name=".practice.RepastPracticeActivity"
             android:label="RecyclerViewDemo"
             android:screenOrientation="portrait">
             <intent-filter>

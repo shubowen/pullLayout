@@ -9,8 +9,7 @@ import android.view.MenuItem;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.xiaosu.pulllayout.SimplePullLayout;
-import com.xiaosu.pulllayout.base.BasePullLayout;
+import com.xiaosu.pulllayout.base.SwipeLayout;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -24,8 +23,9 @@ public class RecyclerViewActivity extends BaseActivity {
 
     @Bind(R.id.recyclerView)
     RecyclerView recyclerView;
+
     @Bind(R.id.pull_layout)
-    SimplePullLayout mPullLayout;
+    SwipeLayout mPullLayout;
 
     private InnerAdapter mAdapter;
 
@@ -50,15 +50,15 @@ public class RecyclerViewActivity extends BaseActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.menu_pull_down_enable:
-                mPullLayout.setPullDownEnable(!mPullLayout.isPullDownEnable());
-                if (mPullLayout.isPullDownEnable())
+                mPullLayout.setSwipeDownEnable(!mPullLayout.isSwipeDownEnable());
+                if (mPullLayout.isSwipeDownEnable())
                     item.setTitle("禁止下拉");
                 else
                     item.setTitle("开启下拉");
                 return true;
             case R.id.menu_pull_up_enable:
-                mPullLayout.setPullUpEnable(!mPullLayout.isPullUpEnable());
-                if (mPullLayout.isPullUpEnable())
+                mPullLayout.setSwipeUpEnable(!mPullLayout.isSwipeUpEnable());
+                if (mPullLayout.isSwipeUpEnable())
                     item.setTitle("禁止上拉");
                 else
                     item.setTitle("开启上拉");
@@ -69,7 +69,7 @@ public class RecyclerViewActivity extends BaseActivity {
     }
 
     @Override
-    protected BasePullLayout pullLayout() {
+    protected SwipeLayout pullLayout() {
         return mPullLayout;
     }
 

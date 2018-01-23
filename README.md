@@ -26,7 +26,7 @@
     
 布局文件中使用:
     
-    <com.xiaosu.pulllayout.SimplePullLayout
+    <SimpleSwipeLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent">
     
@@ -65,30 +65,30 @@
 
 1.布局中使用
     
-    <com.xiaosu.pulllayout.SimplePullLayout
+    <SimpleSwipeLayout
              android:layout_width="match_parent"
              android:layout_height="match_parent">
 
-2.禁止下拉(默认开启):app:pullDownEnable="false"或者代码setPullDownEnable(false)
+2.禁止下拉(默认开启):app:swipeDownEnable="false"或者代码setPullDownEnable(false)
     
     <com.xiaosu.pulllayout.PullLayout
             android:id="@+id/pull_layout"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            app:pullDownEnable="false">
+            app:swipeDownEnable="false">
 
-3.禁止上拉(默认开启):app:pullUpEnable="false"或者代码setPullUpEnable(false)
+3.禁止上拉(默认开启):app:swipeUpEnable="false"或者代码setPullUpEnable(false)
 
     <com.xiaosu.pulllayout.PullLayout
             android:id="@+id/pull_layout"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            app:pullUpEnable="false">
+            app:swipeUpEnable="false">
 
 **自定义头部和尾部**:自定义头部需继承IRefreshHead接口,尾部需继承ILoadFooter接口
 下面对这两个接口的方法做一些简单的说明,具体请参考WaterDropView和FooterView类实现
     
-    pullLayout(IPull iPull) //方法目的是将PullLayout暴露出来,因为头部和尾部必须要操纵PullLayout收放
+    pullLayout(IPull iSwipe) //方法目的是将PullLayout暴露出来,因为头部和尾部必须要操纵PullLayout收放
     onPull(float scrollY, boolean enable) //方法将当前手指拖动的距离暴露出来,可根据需求实现相应的逻辑
     onFingerUp(float scrollY) //方法将手指松开时PullLayout拉动的距离暴露出来,可根据需求实现相应的逻辑
     finishPull(boolean isBeingDragged) //表示一个完整的下拉或者上拉已经结束,isBeingDragged表示手指是否还在拖拽

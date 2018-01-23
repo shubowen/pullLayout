@@ -11,8 +11,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.xiaosu.pulllayout.SimplePullLayout;
-import com.xiaosu.pulllayout.base.BasePullLayout;
+import com.xiaosu.pulllayout.SimpleSwipeLayout;
+import com.xiaosu.pulllayout.base.SwipeLayout;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,12 +26,12 @@ import butterknife.ButterKnife;
  * 描述：请添加此文件的描述
  */
 
-public class FragmentDemo extends Fragment implements BasePullLayout.OnPullCallBackListener {
+public class FragmentDemo extends Fragment implements SwipeLayout.OnPullCallBackListener {
 
     static final String TAG = "Mr.su";
 
     RecyclerView mRecyclerView;
-    SimplePullLayout mPullLayout;
+    SimpleSwipeLayout mPullLayout;
 
     List<String> mList = new ArrayList<>();
 
@@ -55,7 +55,7 @@ public class FragmentDemo extends Fragment implements BasePullLayout.OnPullCallB
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         mRecyclerView = (RecyclerView) view.findViewById(R.id.recyclerView);
-        mPullLayout = (SimplePullLayout) view.findViewById(R.id.pull_layout);
+        mPullLayout = (SimpleSwipeLayout) view.findViewById(R.id.pull_layout);
 
         mPullLayout.setOnPullListener(this);
 
@@ -68,7 +68,7 @@ public class FragmentDemo extends Fragment implements BasePullLayout.OnPullCallB
 
         Log.i(TAG, "onActivityCreated: " + position);
         if (getUserVisibleHint()) {
-            mPullLayout.postRefresh();
+            mPullLayout.refresh();
             Log.i(TAG, position + " : postRefresh in onActivityCreated()");
         } else {
             mActivityCreated = true;
@@ -80,7 +80,7 @@ public class FragmentDemo extends Fragment implements BasePullLayout.OnPullCallB
         super.setUserVisibleHint(isVisibleToUser);
 //        Log.i(TAG, "setUserVisibleHint: " + position + ", " + isVisibleToUser);
         if (isVisibleToUser && mActivityCreated) {
-            mPullLayout.postRefresh();
+            mPullLayout.refresh();
             hasGetData = true;
             Log.i(TAG, position + " : postRefresh in setUserVisibleHint()");
         }
@@ -102,7 +102,7 @@ public class FragmentDemo extends Fragment implements BasePullLayout.OnPullCallB
                     }
                     adapter.notifyDataSetChanged();
                 }
-                mPullLayout.succeed();
+                mPullLayout.success();
             }
         }, 1000);
     }

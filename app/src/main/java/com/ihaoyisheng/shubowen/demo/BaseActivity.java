@@ -3,7 +3,7 @@ package com.ihaoyisheng.shubowen.demo;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
-import com.xiaosu.pulllayout.base.BasePullLayout;
+import com.xiaosu.pulllayout.base.SwipeLayout;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,14 +13,14 @@ import java.util.List;
  * 邮箱：shubowen123@sina.cn
  * 描述：
  */
-public abstract class BaseActivity extends AppCompatActivity implements BasePullLayout.OnPullCallBackListener {
+public abstract class BaseActivity extends AppCompatActivity implements SwipeLayout.OnPullCallBackListener {
 
     protected List<String> mList = new ArrayList<>();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        for (int i = 0; i < 30; i++) {
+        for (int i = 0; i < 20; i++) {
             mList.add("this is the " + i + " item");
         }
     }
@@ -34,7 +34,7 @@ public abstract class BaseActivity extends AppCompatActivity implements BasePull
         postDelay(new Runnable() {
             @Override
             public void run() {
-                pullLayout().succeed();
+                pullLayout().success();
             }
         }, 3000);
     }
@@ -44,7 +44,7 @@ public abstract class BaseActivity extends AppCompatActivity implements BasePull
         postDelay(new Runnable() {
             @Override
             public void run() {
-                pullLayout().succeed();
+                pullLayout().success();
                 int size = mList.size();
                 for (int i = 20; i < size + 20; i++) {
                     mList.add("this is the " + i + " item");
@@ -58,6 +58,6 @@ public abstract class BaseActivity extends AppCompatActivity implements BasePull
 
     }
 
-    protected abstract BasePullLayout pullLayout();
+    protected abstract SwipeLayout pullLayout();
 
 }

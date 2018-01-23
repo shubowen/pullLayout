@@ -1,8 +1,9 @@
 apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
 
 android {
     compileSdkVersion 25
-    buildToolsVersion "25.0.2"
+    buildToolsVersion "25.0.3"
 
     defaultConfig {
         applicationId "com.ihaoyisheng.shubowen.superswiperefreshlayout"
@@ -26,11 +27,11 @@ android {
 
 }
 
-def support_library_version = "25.3.0"
+def support_library_version = "25.3.1"
 
-configurations.all {
+/*configurations.all {
     resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
-}
+}*/
 
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
@@ -39,6 +40,12 @@ dependencies {
      compile "com.android.support:recyclerview-v7:${support_library_version}"
     compile 'com.jakewharton:butterknife:7.0.1'
     compile 'com.xiaosu.lib:widget:1.1.6-SNAPSHOT'
+    compile 'pl.droidsonroids.gif:android-gif-drawable:1.2.3'
     // compile 'com.xiaosu.lib:recyclerview-v7-25.0.1:1.0.0-SNAPSHOT'
-    compile project(':pulllayout-library')
+    compile project(':SwipeLayout')
+    compile 'com.github.bumptech.glide:glide:3.8.0'
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+}
+repositories {
+    mavenCentral()
 }

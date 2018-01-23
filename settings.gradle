@@ -1,5 +1,5 @@
 include ':app',
-        ':pulllayout-library'
+        ':SwipeLayout'
 //        ':spinkit-lib'
 
 //project(':spinkit-lib').projectDir = new File("../../aWorkSpace3/Android-SpinKit/library")

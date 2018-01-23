@@ -5,17 +5,16 @@
               android:layout_height="match_parent"
               android:orientation="vertical">
 
-    <com.xiaosu.pulllayout.PullLayout
+    <com.xiaosu.pulllayout.base.SwipeLayout
         android:id="@+id/pull_layout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:theme="@style/pull_style">
+        android:layout_height="match_parent">
 
         <ListView
             android:id="@+id/listView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"/>
 
-    </com.xiaosu.pulllayout.PullLayout>
+    </com.xiaosu.pulllayout.base.SwipeLayout>
 
 </LinearLayout>
