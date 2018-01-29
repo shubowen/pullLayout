@@ -10,8 +10,7 @@
         android:theme="@style/AppTheme">
 
         <activity
-            android:name=".practice.RepastPracticeActivity"
-            android:label="RecyclerViewDemo"
+            android:name=".MainActivity"
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
@@ -19,6 +18,18 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
+
+        <activity
+            android:name=".practice.BannerPracticeActivity"
+            android:screenOrientation="portrait"/>
+
+        <activity
+            android:name=".practice.FeedlistPracticeActivity"
+            android:screenOrientation="portrait"/>
+
+        <activity
+            android:name=".practice.RepastPracticeActivity"
+            android:screenOrientation="portrait"/>
 
     </application>
 

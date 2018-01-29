@@ -9,6 +9,7 @@ import android.support.v4.view.NestedScrollingParent;
 import android.support.v4.view.NestedScrollingParentHelper;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.MotionEvent;
@@ -18,9 +19,10 @@ import android.widget.AbsListView;
 import android.widget.ScrollView;
 
 import com.xiaosu.pulllayout.R;
+import com.xiaosu.pulllayout.WLog;
 import com.xiaosu.pulllayout.footer.SimpleLoadFooter;
 import com.xiaosu.pulllayout.head.SimpleRefreshHead;
-import com.xiaosu.pulllayout.strategy.ScaleStrategy;
+import com.xiaosu.pulllayout.strategy.FixFrontStrategy;
 import com.xiaosu.pulllayout.strategy.SimpleStrategy;
 
 import java.lang.reflect.Method;
@@ -36,14 +38,12 @@ public class SwipeLayout
 
     private View mTarget; // the target of the gesture
 
-    private OnPullCallBackListener mListener;
+    private OnSwipeListener mListener;
 
     private final NestedScrollingParentHelper mNestedScrollingParentHelper;
     private final NestedScrollingChildHelper mNestedScrollingChildHelper;
 
     private final int[] mParentOffsetInWindow = new int[2];
-
-    private boolean mNestedScrollInProgress;
 
     //正在执行返回动画
     private boolean mReturningToStart;
@@ -69,6 +69,7 @@ public class SwipeLayout
     private boolean mDragStateFlag = false;
 
     private SimpleStrategy mStrategy;
+    private String mStrategyClassName;
 
     @Override
     protected void onDetachedFromWindow() {
@@ -97,6 +98,7 @@ public class SwipeLayout
         TypedArray array = context.obtainStyledAttributes(attrs, R.styleable.SwipeLayout);
         mSwipeDownEnable = array.getBoolean(R.styleable.SwipeLayout_swipeDownEnable, true);
         mSwipeUpEnable = array.getBoolean(R.styleable.SwipeLayout_swipeUpEnable, true);
+        mStrategyClassName = array.getString(R.styleable.SwipeLayout_strategy);
         array.recycle();
     }
 
@@ -104,12 +106,12 @@ public class SwipeLayout
     @Override
     protected boolean drawChild(Canvas canvas, View child, long drawingTime) {
 
-        if (child == mRefreshHead && !mStrategy.shouldDrawHeader()) {
+        if (child == mRefreshHead.getView(this) && !mStrategy.shouldDrawHeader()) {
 //            WLog.d("不绘制头布局");
             return false;
         }
 
-        if (child == mLoadFooter && !mStrategy.shouldDrawFooter()) {
+        if (child == mLoadFooter.getView(this) && !mStrategy.shouldDrawFooter()) {
 //            WLog.d("不绘制脚布局");
             return false;
         }
@@ -137,13 +139,11 @@ public class SwipeLayout
                 mLoadFooter = (ILoadFooter) child;
             } else if (null == mTarget) {
                 mTarget = child;
-            } /*else {
-                removeViewInLayout(child);
-            }*/
+            }
         }
 
         if (null == mRefreshHead) {
-            mRefreshHead = new SimpleRefreshHead();
+            mRefreshHead = new SimpleRefreshHead(getContext());
             View v = mRefreshHead.getView(this);
             addViewInLayout(v, 0, v.getLayoutParams());
         }
@@ -156,10 +156,20 @@ public class SwipeLayout
             addViewInLayout(v, 2, lp);
         }
 
-        if (null == mStrategy) {
-            mStrategy = new ScaleStrategy(this, mRefreshHead, mLoadFooter, mTarget);
+        if (!TextUtils.isEmpty(mStrategyClassName)) {
+            try {
+                mStrategy = (SimpleStrategy) Class.forName(mStrategyClassName)
+                        .getConstructor(SwipeLayout.class, IRefreshHead.class, ILoadFooter.class, View.class)
+                        .newInstance(this, mRefreshHead, mLoadFooter, mTarget);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
 
+        if (null == mStrategy) {
+            mStrategy = new FixFrontStrategy(this, mRefreshHead, mLoadFooter, mTarget);
+        }
+        WLog.d("[mStrategy = " + mStrategy.getClass().getSimpleName() + "]");
     }
 
     @Override
@@ -174,20 +184,12 @@ public class SwipeLayout
             return;
         }
 
-        // TODO: 2018/1/18 mRefreshHead == null || mLoadFooter == null
-
-        View footerView = mLoadFooter.getView(this);
-        View headView = mRefreshHead.getView(this);
-
         final int childPaddingLeft = getPaddingLeft();
         final int childPaddingTop = getPaddingTop();
         final int childPaddingBottom = getPaddingBottom();
         final int childPaddingRight = getPaddingRight();
 
-        mStrategy.onLayout(changed,
-                childPaddingLeft, childPaddingTop, childPaddingRight, childPaddingBottom,
-                getMeasuredWidth(), getMeasuredHeight(),
-                mTarget);
+        mStrategy.onLayout(changed);
     }
 
     @Override
@@ -263,9 +265,6 @@ public class SwipeLayout
         if (mState != state) mState = state;
     }
 
-    private boolean canNestScroll() {
-        return canChildScrollDown() && canChildScrollUp();
-    }
 
     @Override
     public void requestDisallowInterceptTouchEvent(boolean b) {
@@ -280,6 +279,10 @@ public class SwipeLayout
         }
     }
 
+    @Override
+    protected int getChildDrawingOrder(int childCount, int i) {
+        return mStrategy.getChildDrawingOrder(childCount, i);
+    }
 
     @Override
     public boolean dispatchTouchEvent(MotionEvent ev) {
@@ -297,11 +300,11 @@ public class SwipeLayout
 
     @Override
     public void onNestedScrollAccepted(View child, View target, int axes) {
+        mStrategy.onNestedScrollAccepted(child, target, axes);
         // Reset the counter of how much leftover scroll needs to be consumed.
         mNestedScrollingParentHelper.onNestedScrollAccepted(child, target, axes);
         // Dispatch up to the nested parent
         startNestedScroll(axes & ViewCompat.SCROLL_AXIS_VERTICAL);
-        mNestedScrollInProgress = true;
     }
 
 
@@ -334,7 +337,6 @@ public class SwipeLayout
         mNestedScrollingParentHelper.onStopNestedScroll(target);
         stopNestedScroll();
         mDragStateFlag = false;
-        mNestedScrollInProgress = false;
     }
 
     @Override
@@ -496,7 +498,7 @@ public class SwipeLayout
         mStrategy.finishSwipe(message, result);
     }
 
-    public void setOnPullListener(OnPullCallBackListener listener) {
+    public void setOnSwipeListener(OnSwipeListener listener) {
         this.mListener = listener;
     }
 
@@ -504,7 +506,7 @@ public class SwipeLayout
         return -getScrollY();
     }
 
-    public interface OnPullCallBackListener {
+    public interface OnSwipeListener {
         void onRefresh();
 
         void onLoad();

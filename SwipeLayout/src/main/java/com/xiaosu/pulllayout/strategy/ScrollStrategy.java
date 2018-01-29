@@ -234,13 +234,18 @@ public class ScrollStrategy extends SimpleStrategy {
     }
 
     @Override
-    public void onLayout(boolean changed,
-                         int childPaddingLeft, int childPaddingTop, int childPaddingRight, int childPaddingBottom,
-                         int parentMeasureWidth, int parentMeasureHeight,
-                         View target) {
+    public void onLayout(boolean changed) {
 
         View header = mHeader.getView(mParent);
         View footer = mFooter.getView(mParent);
+
+        int childPaddingLeft = mParent.getPaddingLeft();
+        int childPaddingTop = mParent.getPaddingTop();
+        int childPaddingRight = mParent.getPaddingRight();
+        int childPaddingBottom = mParent.getPaddingBottom();
+
+        int parentMeasureWidth = mParent.getMeasuredWidth();
+        int parentMeasureHeight = mParent.getMeasuredHeight();
 
         final int childWidth = parentMeasureWidth - childPaddingLeft - childPaddingRight;
         final int childHeight = parentMeasureHeight - childPaddingTop - childPaddingBottom;
@@ -251,7 +256,7 @@ public class ScrollStrategy extends SimpleStrategy {
         int headerWidth = header.getMeasuredWidth();
         int headerHeight = header.getMeasuredHeight();
 
-        target.layout(childPaddingLeft, childPaddingTop,
+        mTarget.layout(childPaddingLeft, childPaddingTop,
                 childPaddingLeft + childWidth, childPaddingTop + childHeight);
 
         int footerTop = childHeight + childPaddingBottom;

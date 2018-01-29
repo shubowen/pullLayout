@@ -22,7 +22,7 @@ import com.xiaosu.pulllayout.base.SwipeLayout;
  * 描述：基于 requestLayout 和 嵌套滑动等 api 实现header缩放，footer移动的效果
  */
 
-public class ScaleStrategy extends SimpleStrategy {
+public class FixBehindStrategy extends SimpleStrategy {
 
     private static final int INVALID_POINTER = -1;
 
@@ -45,8 +45,6 @@ public class ScaleStrategy extends SimpleStrategy {
 
     private final int mMaxFlingDistance;
 
-    private final int mSwipeDownThreshold;
-
     private static final Interpolator sQuinticInterpolator = new Interpolator() {
         @Override
         public float getInterpolation(float t) {
@@ -56,7 +54,7 @@ public class ScaleStrategy extends SimpleStrategy {
     };
     private boolean flingConsumed;
 
-    public ScaleStrategy(SwipeLayout parent, IRefreshHead header, ILoadFooter footer, View target) {
+    public FixBehindStrategy(SwipeLayout parent, IRefreshHead header, ILoadFooter footer, View target) {
         super(parent, header, footer, target);
 
         final ViewConfiguration vc = ViewConfiguration.get(parent.getContext());
@@ -64,10 +62,8 @@ public class ScaleStrategy extends SimpleStrategy {
 
         mMaxFlingDistance = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 200,
                 mParent.getResources().getDisplayMetrics());
-
-        mSwipeDownThreshold = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 150,
-                mParent.getResources().getDisplayMetrics());
     }
+
 
     @Override
     public boolean swipeBy(int dy) {
@@ -83,36 +79,26 @@ public class ScaleStrategy extends SimpleStrategy {
 
 //        WLog.d("----4----[" + mSwipeY + "]-[" + dy + "]-[" + temp + "]");
 
-        mParent.requestLayout();
+        reLayoutTarget();
         linkHeaderAndFooterStatus();
-
         return true;
     }
-
-    /*private void reLayoutTarget() {
-        int paddingLeft = mParent.getPaddingLeft();
-        int paddingTop = mParent.getPaddingTop();
-        int height = mTarget.getHeight();
-        int width = mTarget.getWidth();
-        mTarget.layout(paddingLeft, paddingTop + mSwipeY, paddingLeft + width, paddingTop + mSwipeY + height);
-    }*/
 
     /**
      * 滑动的时候更新Header或者Footer状态
      */
     private void linkHeaderAndFooterStatus() {
-
         if (mSwipeY > 0) {
             mHeader.onSwipe(isRefreshing, mSwipeY);
-        } else if (mSwipeY < 0) {
+        } else if (mSwipeY > 0) {
             mFooter.onSwipe(isLoading, mSwipeY);
         }
     }
 
     private boolean canSwipeVertically(int dy) {
 
-        boolean canSwipeDown = mTarget.canScrollVertically(1);
-        boolean canSwipeUp = mTarget.canScrollVertically(-1);
+        boolean canSwipeDown = canSwipeDown();
+        boolean canSwipeUp = canSwipeUp();
 
         if (mSwipeY == 0 && canSwipeDown && canSwipeUp) {
             WLog.d("canSwipeVertically----[嵌套滚动]----");
@@ -133,15 +119,23 @@ public class ScaleStrategy extends SimpleStrategy {
     }
 
     @Override
-    protected void swipeTo(int y) {
+    public void swipeTo(int y) {
         mSwipeY = y;
-        mParent.requestLayout();
+        reLayoutTarget();
         linkHeaderAndFooterStatus();
+    }
+
+    private void reLayoutTarget() {
+        int paddingLeft = mParent.getPaddingLeft();
+        int paddingTop = mParent.getPaddingTop();
+        int height = mTarget.getHeight();
+        int width = mTarget.getWidth();
+        mTarget.layout(paddingLeft, paddingTop + mSwipeY, paddingLeft + width, paddingTop + mSwipeY + height);
     }
 
     @Override
     public void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        measureChild(mHeaderView, widthMeasureSpec, heightMeasureSpec, mSwipeY);
+        measureChild(mHeaderView, widthMeasureSpec, heightMeasureSpec, -1);
         measureChild(mFooterView, widthMeasureSpec, heightMeasureSpec, -1);
     }
 
@@ -164,25 +158,25 @@ public class ScaleStrategy extends SimpleStrategy {
 
         int headerWidth = header.getMeasuredWidth();
         int headerHeight = header.getMeasuredHeight();
-        int headerTop = -headerHeight + childPaddingTop;
-        if (0 != headerHeight) {
-            header.layout(0, mSwipeY + headerTop, headerWidth, mSwipeY + childPaddingTop);
-        }
+        header.layout(childPaddingLeft, childPaddingTop, childPaddingLeft + headerWidth, childPaddingTop + headerHeight);
+
         mTarget.layout(childPaddingLeft, mSwipeY + childPaddingTop,
                 childPaddingLeft + childWidth, mSwipeY + childPaddingTop + childHeight);
 
         int footerWidth = footer.getMeasuredWidth();
         int footerHeight = footer.getMeasuredHeight();
-        int footerTop = childHeight + childPaddingBottom;
-        footer.layout(0, mSwipeY + footerTop, footerWidth, mSwipeY + footerTop + footerHeight);
+        int footerBottom = childHeight + childPaddingBottom;
+        footer.layout(childPaddingLeft, footerBottom - footerHeight, footerWidth, footerBottom);
     }
 
     private void makeScroll(Runnable task) {
 
         if (mSwipeY == 0) return;
 
-        if (isRefreshing && mSwipeY > mSwipeDownThreshold) {
-            mScrollToTask.scrollTo(mSwipeDownThreshold);
+        int headerViewHeight = mHeaderView.getHeight();
+
+        if (isRefreshing && mSwipeY > headerViewHeight) {
+            mScrollToTask.scrollTo(headerViewHeight);
             WLog.d("makeScroll--[1]");
         } else if (isLoading && -mSwipeY > mFooterView.getHeight()) {
             mScrollToTask.scrollTo(-mFooterView.getHeight());
@@ -210,7 +204,7 @@ public class ScaleStrategy extends SimpleStrategy {
             WLog.d("静止状态，不做操作");
             return;
         }
-        Runnable action = new Runnable() {
+        mParent.postDelayed(new Runnable() {
             @Override
             public void run() {
                 mScrollToTask.scrollTo(0, new Runnable() {
@@ -227,17 +221,12 @@ public class ScaleStrategy extends SimpleStrategy {
                     }
                 });
             }
-        };
-        if (0 == delay) {
-            action.run();
-        } else {
-            mParent.postDelayed(action, delay);
-        }
+        }, delay);
     }
 
     @Override
     protected void makeRefreshInternal() {
-        mScrollToTask.scrollTo(mSwipeDownThreshold,
+        mScrollToTask.scrollTo(mHeaderView.getHeight(),
                 new Runnable() {
                     @Override
                     public void run() {
@@ -253,15 +242,14 @@ public class ScaleStrategy extends SimpleStrategy {
 
         flingConsumed = mSwipeY != 0;
 
-        WLog.d("onNestedPreFling--[ " + mSwipeY + " ]-[ " + velocityY + " ]-[flingConsumed : " + flingConsumed + "]");
+        WLog.d("onNestedPreFling-[target = " + target.getClass().getSimpleName() + "]-[ " + mSwipeY + " ]-[ " + velocityY + " ]-[flingConsumed : " + flingConsumed + "]");
 
-        if (!flingConsumed) return false;
+        if (flingConsumed) {
+            int vy = (int) -velocityY;
+            mViewFlinger.fling(vy, true);
+        }
 
-        int vy = (int) -velocityY;
-
-        mViewFlinger.fling(vy, true);
-
-        return true;
+        return flingConsumed;
     }
 
     @Override
@@ -318,15 +306,15 @@ public class ScaleStrategy extends SimpleStrategy {
                     int vy = (int) -mScroller.getCurrVelocityY();
                     if (mSwipeY == 0 && Math.abs(vy) > 0) {
                         WLog.d("----将 fling 传递到 [mTarget]---[" + vy + "]");
-                        ScaleStrategy.this.fling(vy);
+                        FixBehindStrategy.this.fling(vy);
                         mNestedFlinger.fling(vy);
                     }
 
-                    ScaleStrategy.this.makeScroll(new Runnable() {
+                    FixBehindStrategy.this.makeScroll(new Runnable() {
                         @Override
                         public void run() {
                             if (notify) {
-                                ScaleStrategy.this.makeScroll();
+                                FixBehindStrategy.this.makeScroll();
                             } else {
                                 mScrollToTask.scrollTo(0);
                             }
@@ -349,10 +337,10 @@ public class ScaleStrategy extends SimpleStrategy {
     }
 
     private void makeScroll() {
-        // TODO: 2018/1/21 设定上拉和下拉两个临界点，在临界点上下执行不同的回拉动作
-        if (mSwipeY > mSwipeDownThreshold) {
+        int headerViewHeight = mHeaderView.getHeight();
+        if (mSwipeY > headerViewHeight) {
             //滚动到刷新位置
-            mScrollToTask.scrollTo(mSwipeDownThreshold,
+            mScrollToTask.scrollTo(headerViewHeight,
                     new Runnable() {
                         @Override
                         public void run() {
@@ -464,6 +452,7 @@ public class ScaleStrategy extends SimpleStrategy {
 
     @Override
     public void onNestedFling(View target, float velocityX, float velocityY) {
+        WLog.d("--onNestedFling--");
         mNestedFlinger.fling((int) velocityY);
     }
 
@@ -495,10 +484,11 @@ public class ScaleStrategy extends SimpleStrategy {
     @Override
     public boolean dispatchTouchEvent(MotionEvent ev) {
 
-        mParent.invokeSuperDispatchTouchEvent(ev);
-
         final int action = MotionEventCompat.getActionMasked(ev);
         int pointerIndex;
+
+        mParent.invokeSuperDispatchTouchEvent(ev);
+
 
         switch (action) {
             case MotionEvent.ACTION_DOWN:
@@ -534,6 +524,7 @@ public class ScaleStrategy extends SimpleStrategy {
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_CANCEL:
                 if (mSwipeY != 0 && !flingConsumed) {
+                    WLog.d("---手指释放---");
                     makeScroll(new Runnable() {
                         @Override
                         public void run() {

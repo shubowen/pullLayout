@@ -42,7 +42,7 @@ public class SmartViewHolder extends RecyclerView.ViewHolder implements View.OnC
     public void onClick(View v) {
         if (mListener != null) {
             int position = getAdapterPosition();
-            if(position >= 0){
+            if (position >= 0) {
                 mListener.onItemClick(null, v, position, getItemId());
             }
         }
@@ -60,7 +60,7 @@ public class SmartViewHolder extends RecyclerView.ViewHolder implements View.OnC
         return this;
     }
 
-    public SmartViewHolder text(int id,@StringRes int stringRes) {
+    public SmartViewHolder text(int id, @StringRes int stringRes) {
         View view = findViewById(id);
         if (view instanceof TextView) {
             ((TextView) view).setText(stringRes);
@@ -80,6 +80,14 @@ public class SmartViewHolder extends RecyclerView.ViewHolder implements View.OnC
         View view = findViewById(id);
         if (view instanceof ImageView) {
             Glide.with(view.getContext()).load(imageId).into((ImageView) view);
+        }
+        return this;
+    }
+
+    public SmartViewHolder image(int id, String url) {
+        View view = findViewById(id);
+        if (view instanceof ImageView) {
+            Glide.with(view.getContext()).load(url).into((ImageView) view);
         }
         return this;
     }

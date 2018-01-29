@@ -62,7 +62,7 @@ public class RepastPracticeActivity extends AppCompatActivity {
                 }
             });
 
-            refreshLayout.setOnPullListener(new SwipeLayout.OnPullCallBackListener() {
+            refreshLayout.setOnSwipeListener(new SwipeLayout.OnSwipeListener() {
                 @Override
                 public void onRefresh() {
                     refreshLayout.postDelayed(new Runnable() {

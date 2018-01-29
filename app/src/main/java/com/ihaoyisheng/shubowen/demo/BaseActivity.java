@@ -13,7 +13,7 @@ import java.util.List;
  * 邮箱：shubowen123@sina.cn
  * 描述：
  */
-public abstract class BaseActivity extends AppCompatActivity implements SwipeLayout.OnPullCallBackListener {
+public abstract class BaseActivity extends AppCompatActivity implements SwipeLayout.OnSwipeListener {
 
     protected List<String> mList = new ArrayList<>();
 

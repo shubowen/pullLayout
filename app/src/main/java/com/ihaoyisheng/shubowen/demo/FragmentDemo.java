@@ -26,7 +26,7 @@ import butterknife.ButterKnife;
  * 描述：请添加此文件的描述
  */
 
-public class FragmentDemo extends Fragment implements SwipeLayout.OnPullCallBackListener {
+public class FragmentDemo extends Fragment implements SwipeLayout.OnSwipeListener {
 
     static final String TAG = "Mr.su";
 
@@ -57,7 +57,7 @@ public class FragmentDemo extends Fragment implements SwipeLayout.OnPullCallBack
         mRecyclerView = (RecyclerView) view.findViewById(R.id.recyclerView);
         mPullLayout = (SimpleSwipeLayout) view.findViewById(R.id.pull_layout);
 
-        mPullLayout.setOnPullListener(this);
+        mPullLayout.setOnSwipeListener(this);
 
         position = getArguments().getInt("position");
     }

@@ -57,4 +57,12 @@ public interface IView {
      * 界面不可见时调用
      */
     void onHidden();
+
+    /**
+     * 滑动过程的回调
+     *
+     * @param active 是否是激活状态
+     * @param dis    滑动的距离
+     */
+    void onSwipe(boolean active, int dis);
 }

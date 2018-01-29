@@ -16,6 +16,10 @@ import pl.droidsonroids.gif.GifImageView
 class GIFHeader(ctx: Context, attr: AttributeSet) :
         IRefreshHead, GifImageView(ctx, attr) {
 
+    override fun onSwipe(active: Boolean, dis: Int) {
+
+    }
+
     override fun onHidden() {
 
     }

@@ -7,11 +7,13 @@
     <com.xiaosu.pulllayout.base.SwipeLayout
         android:id="@+id/swipe_layout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:layout_marginTop="?attr/actionBarSize"
+        app:strategy="com.xiaosu.pulllayout.strategy.ScaleStrategy">
 
         <com.ihaoyisheng.shubowen.demo.practice.GIFHeader
             android:layout_width="match_parent"
-            android:layout_height="160dp"
+            android:layout_height="wrap_content"
             android:layout_gravity="top"/>
 
         <android.support.v7.widget.RecyclerView
@@ -21,5 +23,12 @@
             app:layoutManager="android.support.v7.widget.LinearLayoutManager"/>
 
     </com.xiaosu.pulllayout.base.SwipeLayout>
+
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbar"
+        style="@style/AppTheme.Toolbar.Light"
+        android:background="@android:color/transparent"
+        app:navigationIcon="@drawable/ic_arrow_back_dark_24dp"
+        app:title="@string/title_activity_practice_repast"/>
 
 </FrameLayout>

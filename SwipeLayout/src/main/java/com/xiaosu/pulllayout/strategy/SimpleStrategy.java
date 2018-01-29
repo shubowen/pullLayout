@@ -11,6 +11,7 @@ import android.webkit.WebView;
 import android.widget.AbsListView;
 import android.widget.ScrollView;
 
+import com.xiaosu.pulllayout.api.ContentWrapper;
 import com.xiaosu.pulllayout.base.ILoadFooter;
 import com.xiaosu.pulllayout.base.IRefreshHead;
 import com.xiaosu.pulllayout.base.SwipeLayout;
@@ -33,6 +34,11 @@ public abstract class SimpleStrategy implements IStrategy {
 
     protected boolean isRefreshing;
     protected boolean isLoading;
+    private View mNestedScrollView;
+
+    protected final int indexOfTarget;
+    protected final int indexOfFooter;
+    protected final int indexOfHeader;
 
 
     public SimpleStrategy(SwipeLayout parent, IRefreshHead header, ILoadFooter footer, View target) {
@@ -43,6 +49,10 @@ public abstract class SimpleStrategy implements IStrategy {
 
         mHeaderView = mHeader.getView(parent);
         mFooterView = mFooter.getView(parent);
+
+        indexOfHeader = parent.indexOfChild(mHeaderView);
+        indexOfFooter = parent.indexOfChild(mFooterView);
+        indexOfTarget = parent.indexOfChild(mTarget);
     }
 
     @Override
@@ -109,12 +119,7 @@ public abstract class SimpleStrategy implements IStrategy {
             mParent.post(new Runnable() {
                 @Override
                 public void run() {
-                    mParent.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            makeRefreshInternal();
-                        }
-                    });
+                    makeRefreshInternal();
                 }
             });
         }
@@ -146,6 +151,35 @@ public abstract class SimpleStrategy implements IStrategy {
         } else if (mTarget instanceof NestedScrollView) {
             ((NestedScrollView) mTarget).fling(velocity);
         }
+    }
+
+    public void onNestedScrollAccepted(View child, View target, int axes) {
+        mNestedScrollView = target;
+
+        ContentWrapper wrapper = ContentWrapper.wrapper(child);
+    }
+
+    protected boolean canSwipeDown() {
+        return null != mNestedScrollView ?
+                mNestedScrollView.canScrollVertically(1) : mTarget.canScrollVertically(1);
+    }
+
+    protected boolean canSwipeUp() {
+        return null != mNestedScrollView ?
+                mNestedScrollView.canScrollVertically(-1) : mTarget.canScrollVertically(-1);
+    }
+
+    public int getChildDrawingOrder(int childCount, int i) {
+        return i;
+    }
+
+
+    protected boolean swipeBy(int dy) {
+        return true;
+    }
+
+    protected void swipeTo(int y) {
+
     }
 
 }

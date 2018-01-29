@@ -7,10 +7,13 @@ android {
 
     defaultConfig {
         applicationId "com.ihaoyisheng.shubowen.superswiperefreshlayout"
-        minSdkVersion 14
+        minSdkVersion 16
         targetSdkVersion 25
         versionCode 1
         versionName "1.0"
+
+        renderscriptTargetApi 25
+        renderscriptSupportModeEnabled true
     }
 
     buildTypes {
@@ -40,8 +43,14 @@ dependencies {
      compile "com.android.support:recyclerview-v7:${support_library_version}"
     compile 'com.jakewharton:butterknife:7.0.1'
     compile 'com.xiaosu.lib:widget:1.1.6-SNAPSHOT'
-    compile 'pl.droidsonroids.gif:android-gif-drawable:1.2.3'
-    // compile 'com.xiaosu.lib:recyclerview-v7-25.0.1:1.0.0-SNAPSHOT'
+
+    compile 'de.hdodenhof:circleimageview:2.1.0'
+    compile 'com.flyco.roundview:FlycoRoundView_Lib:1.1.4@aar'
+    compile 'pl.droidsonroids.gif:android-gif-drawable:1.2.8'
+    compile 'com.github.mmin18:realtimeblurview:1.0.6'
+
+    compile 'com.google.code.gson:gson:2.8.1'
+
     compile project(':SwipeLayout')
     compile 'com.github.bumptech.glide:glide:3.8.0'
     compile "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"

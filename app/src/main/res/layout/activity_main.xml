@@ -9,13 +9,19 @@
     <Button
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:onClick="toRecyclerView"
-        android:text="recyclerView"/>
+        android:onClick="toRepast"
+        android:text="餐饮美食"/>
 
     <Button
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:onClick="toListView"
-        android:text="listView"/>
+        android:onClick="toWeibo"
+        android:text="微博列表"/>
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:onClick="toBanner"
+        android:text="滚动广告"/>
 
 </LinearLayout>

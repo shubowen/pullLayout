@@ -4,7 +4,7 @@
     <declare-styleable name="SwipeLayout">
         <attr name="swipeUpEnable" format="boolean"/>
         <attr name="swipeDownEnable" format="boolean"/>
-        <attr name="android:layout_gravity"/>
+        <attr name="strategy" format="string"/>
     </declare-styleable>
 
     <declare-styleable name="SwipeLayout_Layout">
@@ -30,7 +30,7 @@
         <enum name="FixedBehind" value="2"/><!--固定在背后-->
     </attr>
 
-    <declare-styleable name="ClassicsHeader">
+    <declare-styleable name="SimpleRefreshHead">
         <attr name="srlClassicsSpinnerStyle"/>
         <attr name="srlPrimaryColor"/>
         <attr name="srlAccentColor"/>
@@ -59,6 +59,13 @@
         <attr name="srlDrawableSize"/>
         <attr name="srlDrawableArrowSize"/>
         <attr name="srlDrawableProgressSize"/>
+    </declare-styleable>
+
+    <declare-styleable name="MaterialHeader">
+        <attr name="mhPrimaryColor" format="color" />
+        <attr name="mhShadowColor" format="color" />
+        <attr name="mhShadowRadius" format="dimension"/>
+        <attr name="mhShowBezierWave" format="boolean"/>
     </declare-styleable>
 
 </resources>

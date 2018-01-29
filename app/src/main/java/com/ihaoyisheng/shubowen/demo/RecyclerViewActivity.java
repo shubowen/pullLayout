@@ -37,7 +37,7 @@ public class RecyclerViewActivity extends BaseActivity {
 
         mAdapter = new InnerAdapter();
         recyclerView.setAdapter(mAdapter);
-        mPullLayout.setOnPullListener(this);
+        mPullLayout.setOnSwipeListener(this);
     }
 
     @Override

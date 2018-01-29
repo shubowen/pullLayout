@@ -37,6 +37,8 @@ public class SimpleLoadFooter extends RelativeLayout implements ILoadFooter {
     protected int mPaddingTop = 20;
     protected int mPaddingBottom = 20;
 
+    private boolean mFooterThresholdFlag = false;
+
     //<editor-fold desc="LinearLayout">
     public SimpleLoadFooter(Context context) {
         super(context);
@@ -85,15 +87,15 @@ public class SimpleLoadFooter extends RelativeLayout implements ILoadFooter {
         lpProgress.rightMargin = ta.getDimensionPixelSize(R.styleable.SimpleLoadFooter_srlDrawableMarginRight, dip2px(20));
         lpArrow.rightMargin = lpProgress.rightMargin;
 
-        lpArrow.width = ta.getLayoutDimension(R.styleable.ClassicsHeader_srlDrawableArrowSize, lpArrow.width);
-        lpArrow.height = ta.getLayoutDimension(R.styleable.ClassicsHeader_srlDrawableArrowSize, lpArrow.height);
-        lpProgress.width = ta.getLayoutDimension(R.styleable.ClassicsHeader_srlDrawableProgressSize, lpProgress.width);
-        lpProgress.height = ta.getLayoutDimension(R.styleable.ClassicsHeader_srlDrawableProgressSize, lpProgress.height);
+        lpArrow.width = ta.getLayoutDimension(R.styleable.SimpleRefreshHead_srlDrawableArrowSize, lpArrow.width);
+        lpArrow.height = ta.getLayoutDimension(R.styleable.SimpleRefreshHead_srlDrawableArrowSize, lpArrow.height);
+        lpProgress.width = ta.getLayoutDimension(R.styleable.SimpleRefreshHead_srlDrawableProgressSize, lpProgress.width);
+        lpProgress.height = ta.getLayoutDimension(R.styleable.SimpleRefreshHead_srlDrawableProgressSize, lpProgress.height);
 
-        lpArrow.width = ta.getLayoutDimension(R.styleable.ClassicsHeader_srlDrawableSize, lpArrow.width);
-        lpArrow.height = ta.getLayoutDimension(R.styleable.ClassicsHeader_srlDrawableSize, lpArrow.height);
-        lpProgress.width = ta.getLayoutDimension(R.styleable.ClassicsHeader_srlDrawableSize, lpProgress.width);
-        lpProgress.height = ta.getLayoutDimension(R.styleable.ClassicsHeader_srlDrawableSize, lpProgress.height);
+        lpArrow.width = ta.getLayoutDimension(R.styleable.SimpleRefreshHead_srlDrawableSize, lpArrow.width);
+        lpArrow.height = ta.getLayoutDimension(R.styleable.SimpleRefreshHead_srlDrawableSize, lpArrow.height);
+        lpProgress.width = ta.getLayoutDimension(R.styleable.SimpleRefreshHead_srlDrawableSize, lpProgress.width);
+        lpProgress.height = ta.getLayoutDimension(R.styleable.SimpleRefreshHead_srlDrawableSize, lpProgress.height);
 
         mFinishDuration = ta.getInt(R.styleable.SimpleLoadFooter_srlFinishDuration, mFinishDuration);
 
@@ -177,6 +179,18 @@ public class SimpleLoadFooter extends RelativeLayout implements ILoadFooter {
         mTitleText.setText(REFRESH_FOOTER_PULLUP);
         mArrowView.setRotation(180);
         mArrowView.setVisibility(VISIBLE);
+    }
+
+    @Override
+    public void onSwipe(boolean active, int dis) {
+        int height = getHeight();
+        if (0 > dis && -dis >= height && !mFooterThresholdFlag) {
+            mFooterThresholdFlag = true;
+            onBeyondThreshold();
+        } else if (0 > dis && -dis < height && mFooterThresholdFlag) {
+            mFooterThresholdFlag = false;
+            onUnderThreshold();
+        }
     }
 
     @Override
